@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Masyarakat - Posyandu</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Dashboard Masyarakat</h1>
+    <a href="login.html" class="logout-btn">Logout</a>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <ul>
+        <li><a href="masyarakat_dashboard.html">Beranda</a></li>
+        <li><a href="masyarakat_input_data.html">Input Data Antropometri</a></li>
+        <li><a href="masyarakat_riwayat.html">Riwayat Antropometri</a></li>
+      </ul>
+    </aside>
+
+   <main class="content">
+      <h2>Selamat Datang, [Nama Masyarakat]</h2>
+
+      <section class="content">
+        <div class="dashboard-cards">
+          <div class="card">
+            <h3>Jadwal Posyandu Berikutnya</h3>
+            <p>5 Oktober 2025 - Posyandu Melati</p>
+          </div>
+
+          <div class="card">
+            <h3>Jadwal Posyandu</h3>
+            <table>
+              <tr><th>Tanggal</th><th>Lokasi</th><th>Layanan</th></tr>
+              <tr><td>10 Okt 2025</td><td>Balai Desa</td><td>Imunisasi, Timbang Balita</td></tr>
+              <tr><td>17 Okt 2025</td><td>Pos RW 3</td><td>Konsultasi Gizi</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="card charts">
+          <h2>Riwayat Imunisasi Anak</h2>
+          <canvas id="imunisasiChart"></canvas>
+          <ul class="stat-list">
+            <li>0 Bulan: <strong>1 imunisasi</strong></li>
+            <li>2 Bulan: <strong>2 imunisasi</strong></li>
+            <li>4 Bulan: <strong>3 imunisasi</strong></li>
+            <li>6 Bulan: <strong>4 imunisasi</strong></li>
+            <li>9 Bulan: <strong>5 imunisasi</strong></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Edukasi Gizi</h3>
+          <p>Pastikan anak mendapatkan makanan bergizi seimbang, rutin timbang berat badan, dan cek pertumbuhan di Posyandu.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Posyandu Melati 1</p>
+  </footer>
+
+  <script>
+    // Grafik Riwayat Imunisasi
+    new Chart(document.getElementById("imunisasiChart"), {
+      type: "line",
+      data: {
+        labels: ["0 Bulan", "2 Bulan", "4 Bulan", "6 Bulan", "9 Bulan"],
+        datasets: [{
+          label: "Jumlah Imunisasi",
+          data: [1, 2, 3, 4, 5],
+          borderColor: "#2196f3",
+          borderWidth: 2,
+          fill: false,
+          tension: 0.3
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

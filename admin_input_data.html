@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Input Data Antropometri</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a class="back-btn" onclick="goBack()">Kembali</a>
+    <h1>Input Data Antropometri</h1>
+    <a href="beranda_umum.html" class="logout-btn">Logout</a>
+  </header>
+
+  <main class="content">
+    <form class="login-box">
+      <label>Nama Anak:</label>
+      <input type="text" placeholder="Masukkan nama anak" required>
+
+      <label>Umur (bulan):</label>
+      <input type="number" placeholder="Masukkan umur dalam bulan" required>
+
+      <label>Jenis Kelamin:</label>
+      <select required>
+        <option value="">-- Pilih --</option>
+        <option value="laki-laki">Laki-laki</option>
+        <option value="perempuan">Perempuan</option>
+      </select>
+
+      <label>Berat Badan (kg):</label>
+      <input type="number" step="0.1" placeholder="Masukkan berat badan" required>
+
+      <label>Tinggi Badan (cm):</label>
+      <input type="number" step="0.1" placeholder="Masukkan tinggi badan" required>
+
+      <label>Lingkar Kepala (cm):</label>
+      <input type="number" step="0.1" placeholder="Masukkan lingkar kepala" required>
+
+      <button type="submit" class="btn">Hitung & Lihat Hasil</button>
+    </form>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Posyandu Melati 1</p>
+  </footer>
+
+  <script>
+    function goBack() {
+      // Sesuaikan ke dashboard masing-masing
+      window.location.href = "admin_dashboard.html"; 
+      // Kalau ini untuk masyarakat ganti aja jadi: "masyarakat_dashboard.html"
+    }
+  </script>
+</body>
+</html>
