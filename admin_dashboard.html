@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin Posyandu Melati 1</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Dashboard Admin</h1>
+    <a href="beranda_umum.html" class="logout-btn"> Logout</a>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <ul>
+        <li><a href="admin_dashboard.html">Beranda</a></li>
+        <li><a href="admin_tabel.html">Tabel Data Akun</a></li>
+        <li><a href="admin_input_data.html">Input Data Antropometri</a></li>
+        <li><a href="admin_edit_akun.html">Edit Data Akun</a></li>
+        <li><a href="admin_jadwal.html">Jadwal Posyandu</a></li>
+      </ul>
+    </aside>
+
+    <main class="content">
+      <h2>Selamat Datang</h2>
+
+      <div class="dashboard-cards">
+        <div class="card">
+          <h3>Jadwal Posyandu</h3>
+          <table>
+            <tr><th>Tanggal</th><th>Lokasi</th><th>Layanan</th></tr>
+            <tr><td>12 Oktober 2025</td><td>Posyandu Melati 1</td><td>Imunisasi, Timbang Balita</td></tr>
+            <tr><td>12 November 2025</td><td>Posyandu Melati 1</td><td>Konsultasi Gizi</td></tr>
+          </table>
+        </div>
+
+        <div class="card charts">
+          <h2>Statistik Balita</h2>
+          <canvas id="giziChart"></canvas>
+          <ul class="stat-list">
+              <li>Normal: <strong>90 anak</strong></li>
+            <li>Stunting: <strong>20 anak</strong></li>
+            <li>Gizi Buruk: <strong>10 anak</strong></li>
+          </ul>
+        </div>
+
+        <div class="card charts">
+          <canvas id="genderChart"></canvas>
+          <ul class="stat-list">
+            <li>Laki-laki: <strong>60 anak</strong></li>
+            <li>Perempuan: <strong>60 anak</strong></li>
+          </ul>
+        </div>
+  
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Posyandu Melati 1</p>
+  </footer>
+
+  <!-- ini contoh aja ya kalo bisa yang lebih keren grafiknya gas -->
+  <script>
+    // Grafik Status Gizi
+    new Chart(document.getElementById("giziChart"), {
+      type: "bar",
+      data: {
+        labels: ["Normal", "Stunting", "Gizi Buruk"],
+        datasets: [{
+          label: "Jumlah Balita",
+          data: [90, 20, 10],
+          backgroundColor: ["#4caf50", "#ff9800", "#f44336"]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false } // legend bawaan dimatikan
+        }
+      }
+    });
+
+    // Grafik Gender
+    new Chart(document.getElementById("genderChart"), {
+      type: "doughnut",
+      data: {
+        labels: ["Laki-laki", "Perempuan"],
+        datasets: [{
+          data: [60, 60],
+          backgroundColor: ["#2196f3", "#e91e63"]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

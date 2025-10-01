@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Posyandu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a class="back-btn" href='beranda_umum.html'">Kembali</a>
+    <h1>Posyandu Melati 1</h1>
+  </header>
+
+  <main>
+    <div class="login-box">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Nama Pengguna" required>
+        <input type="password" id="password" placeholder="Kata Sandi" required>
+        <select id="role" required>
+          <option value="">-- Pilih Peran --</option>
+          <option value="admin">Admin</option>
+          <option value="masyarakat">Masyarakat</option>
+        </select>
+        <button type="submit" class="btn">Login</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Posyandu Melati 1</p>
+  </footer>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      let role = document.getElementById("role").value;
+
+      if (role === "admin") {
+        window.location.href = "admin_dashboard.html";
+      } else if (role === "masyarakat") {
+        window.location.href = "masyarakat_dashboard.html";
+      } else {
+        alert("Silakan pilih peran terlebih dahulu!");
+      }
+    });
+  </script>
+</body>
+</html>
