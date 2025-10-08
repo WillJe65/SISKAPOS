@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Posyandu Melati 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css" />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#10b981",
+              "primary-foreground": "#ffffff",
+              input: "#e5e7eb",
+              ring: "#10b981",
+              "muted-foreground": "#6b7280",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-gradient-posyandu flex flex-col">
+    <!-- Header -->
+    <header
+      class="w-full bg-white/80 backdrop-blur-sm border-b border-green-100 sticky top-0 z-40"
+    >
+      <div
+        class="container mx-auto px-4 py-4 flex items-center justify-between max-w-7xl"
+      >
+        <button
+          onclick="handleBackClick()"
+          class="flex items-center gap-2 text-green-700 hover:text-green-900 transition-colors duration-200 group"
+          data-testid="back-button"
+        >
+          <svg
+            class="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            ></path>
+          </svg>
+          <span class="font-medium">Kembali</span>
+        </button>
+
+        <div class="flex items-center gap-3">
+          <div
+            class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center"
+          >
+            <svg
+              class="w-4 h-4 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              ></path>
+            </svg>
+          </div>
+          <h1 class="text-xl md:text-2xl font-bold text-green-800">
+            Posyandu Melati 1
+          </h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center px-4 py-8 md:py-12">
+      <div class="w-full max-w-md">
+        <!-- Welcome Section -->
+        <div class="text-center mb-8">
+          <div
+            class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+          >
+            <svg
+              class="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              ></path>
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold text-green-800 mb-2">Selamat Datang</h2>
+          <p class="text-green-600 text-sm md:text-base">
+            Silakan masuk untuk melanjutkan ke sistem Posyandu
+          </p>
+        </div>
+
+        <!-- Login Card -->
+        <div
+          class="bg-white/90 backdrop-blur-sm border border-green-100 shadow-xl rounded-xl"
+        >
+          <div class="p-6 pb-6">
+            <div class="text-center mb-6">
+              <h3 class="text-2xl font-semibold text-green-800">Masuk</h3>
+              <p class="text-green-600 text-sm mt-1">
+                Masukkan kredensial Anda untuk mengakses dashboard
+              </p>
+            </div>
+
+            <form id="loginForm" class="space-y-6" data-testid="login-form">
+              <!-- Username Input -->
+              <div class="space-y-2">
+                <label
+                  for="username"
+                  class="text-sm font-medium text-green-700"
+                >
+                  Nama Pengguna
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="Masukkan nama pengguna"
+                  required
+                  class="w-full h-11 px-3 py-2 border border-green-200 rounded-md shadow-sm transition-all focus:outline-none focus:ring-1 focus:ring-green-400 focus:border-green-400 placeholder:text-gray-400"
+                  data-testid="username-input"
+                />
+              </div>
+
+              <!-- Password Input -->
+              <div class="space-y-2">
+                <label
+                  for="password"
+                  class="text-sm font-medium text-green-700"
+                >
+                  Kata Sandi
+                </label>
+                <div class="relative">
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Masukkan kata sandi"
+                    required
+                    class="w-full h-11 px-3 py-2 pr-10 border border-green-200 rounded-md shadow-sm transition-all focus:outline-none focus:ring-1 focus:ring-green-400 focus:border-green-400 placeholder:text-gray-400"
+                    data-testid="password-input"
+                  />
+                  <button
+                    type="button"
+                    id="passwordToggle"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 hover:text-green-700 transition-colors"
+                    data-testid="password-toggle"
+                  >
+                    <svg
+                      id="eyeIcon"
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      ></path>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      ></path>
+                    </svg>
+                    <svg
+                      id="eyeOffIcon"
+                      class="w-5 h-5 hidden"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Role Selection -->
+              <div class="space-y-2">
+                <label for="role" class="text-sm font-medium text-green-700">
+                  Peran
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  required
+                  class="custom-select w-full h-11 px-3 py-2 border border-green-200 rounded-md shadow-sm transition-all focus:outline-none focus:ring-1 focus:ring-green-400 focus:border-green-400 bg-white"
+                  data-testid="role-select"
+                >
+                  <option value="">Pilih peran Anda</option>
+                  <option value="admin" data-testid="admin-option">
+                    Admin
+                  </option>
+                  <option value="masyarakat" data-testid="masyarakat-option">
+                    Masyarakat
+                  </option>
+                </select>
+              </div>
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                id="submitBtn"
+                class="w-full h-11 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-md shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+                data-testid="login-submit-button"
+              >
+                <span id="buttonText">Masuk</span>
+                <div id="loadingSpinner" class="spinner hidden"></div>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="mt-6 text-center">
+          <p class="text-sm text-green-600">
+            Butuh bantuan? Hubungi administrator Posyandu
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      class="bg-white/80 backdrop-blur-sm border-t border-green-100 mt-auto"
+    >
+      <div class="container mx-auto px-4 py-6 text-center max-w-7xl">
+        <p class="text-green-700 text-sm md:text-base">
+          2025 Posyandu Melati 1 - Kelompok 3 Kapita Selekta ITERA
+        </p>
+      </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/login.js"></script>
+  </body>
+</html>

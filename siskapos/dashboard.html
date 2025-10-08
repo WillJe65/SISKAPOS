@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Beranda Umum - Posyandu Melati 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css" />
+
+    <script>
+      // Konfigurasi Tailwind
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#10b981",
+              "primary-foreground": "#ffffff",
+              input: "#e5e7eb",
+              ring: "#10b981",
+              "muted-foreground": "#6b7280",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-gradient-posyandu">
+    <!-- Navigation Header -->
+    <header
+      class="w-full bg-white/90 backdrop-blur-sm border-b border-green-100 sticky top-0 z-50 shadow-sm"
+    >
+      <div
+        class="container mx-auto px-4 py-4 flex items-center justify-between max-w-7xl"
+      >
+        <!-- Logo and Brand -->
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"
+          >
+            <svg
+              class="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              ></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold text-green-800">
+              Posyandu Melati 1
+            </h1>
+            <p class="text-sm text-green-600 hidden md:block">
+              Melayani Kesehatan Keluarga Indonesia
+            </p>
+          </div>
+        </div>
+
+        <!-- Login Button -->
+        <button
+          onclick="navigateToLogin()"
+          class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 md:px-8 md:py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          data-testid="login-button"
+        >
+          <div class="flex items-center gap-2">
+            <svg
+              class="w-4 h-4 md:w-5 md:h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+              ></path>
+            </svg>
+            <span>Login</span>
+          </div>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex-1">
+      <section class="relative py-12 md:py-20">
+        <div class="container mx-auto px-4 max-w-7xl">
+          <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <!-- Hero Text -->
+            <div class="fade-in">
+              <div class="mb-6">
+                <span
+                  class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4"
+                >
+                  🏥 Layanan Kesehatan Terpercaya
+                </span>
+                <h2
+                  class="text-4xl md:text-5xl lg:text-6xl font-bold text-green-800 mb-6 leading-tight"
+                >
+                  Selamat Datang di
+                  <span class="text-green-600">Posyandu Melati 1</span>
+                </h2>
+                <p
+                  class="text-lg md:text-xl text-green-700 mb-8 leading-relaxed"
+                >
+                  Aplikasi ini membantu pencatatan gizi balita dan mempermudah
+                  masyarakat serta admin dalam memantau perkembangan anak dengan
+                  mudah dan terpercaya.
+                </p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-col sm:flex-row gap-4">
+                <button
+                  onclick="navigateToLogin()"
+                  class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                >
+                  Mulai Sekarang
+                </button>
+                <button
+                  onclick="scrollToInfo()"
+                  class="border-2 border-green-300 text-green-700 hover:bg-green-50 px-8 py-4 rounded-lg font-semibold transition-all duration-200"
+                >
+                  Pelajari Lebih Lanjut
+                </button>
+              </div>
+            </div>
+
+            <!-- Hero Image -->
+            <div class="fade-in">
+              <div class="relative">
+                <div
+                  class="absolute inset-0 bg-gradient-to-tr from-green-200 to-emerald-200 rounded-3xl transform rotate-3"
+                ></div>
+                <div
+                  class="relative bg-white rounded-3xl shadow-xl overflow-hidden"
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1621525408631-18c0c8cccd13?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxwb3N5YW5kdSUyMGluZG9uZXNpYXxlbnwwfHx8fDE3NTk4MDQ2NzB8MA&ixlib=rb-4.0.1&q=85"
+                    alt="Layanan Posyandu"
+                    class="w-full h-80 md:h-96 object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Information Section -->
+      <section id="info" class="py-16 md:py-24 bg-white/50">
+        <div class="container mx-auto px-4 max-w-7xl">
+          <!-- Section Header -->
+          <div class="text-center mb-16 fade-in">
+            <span
+              class="inline-block text-2xl bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-bold mb-4"
+            >
+              💡 Informasi Layanan
+            </span>
+            <h3 class="text-3xl md:text-4xl font-bold text-green-800 mb-6">
+              Layanan Unggulan Posyandu
+            </h3>
+            <p class="text-lg text-green-600 max-w-2xl mx-auto">
+              Kami menyediakan layanan kesehatan terpadu untuk ibu dan anak
+              dengan standar pelayanan terbaik
+            </p>
+          </div>
+
+          <!-- Services Grid -->
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <!-- Service Card 1 -->
+            <div
+              class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+            >
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  ></path>
+                </svg>
+              </div>
+              <h4 class="text-xl font-semibold text-green-800 mb-3">
+                Pencatatan Gizi Balita
+              </h4>
+              <p class="text-green-600">
+                Monitoring dan pencatatan perkembangan gizi balita secara
+                digital dan terintegrasi.
+              </p>
+            </div>
+
+            <!-- Service Card 2 -->
+            <div
+              class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+            >
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h4 class="text-xl font-semibold text-green-800 mb-3">
+                Konsultasi Kesehatan
+              </h4>
+              <p class="text-green-600">
+                Layanan konsultasi kesehatan ibu dan anak dengan tenaga medis
+                berpengalaman.
+              </p>
+            </div>
+
+            <!-- Service Card 3 -->
+            <div
+              class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+            >
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  ></path>
+                </svg>
+              </div>
+              <h4 class="text-xl font-semibold text-green-800 mb-3">
+                Laporan Digital
+              </h4>
+              <p class="text-green-600">
+                Sistem pelaporan digital yang memudahkan tracking dan analisis
+                data kesehatan.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- News Section -->
+      <section class="py-16 md:py-24">
+        <div class="container mx-auto px-4 max-w-7xl">
+          <!-- News Header -->
+          <div class="text-center mb-12 fade-in">
+            <span
+              class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4"
+            >
+              📰 Berita Terkini
+            </span>
+            <h3 class="text-3xl md:text-4xl font-bold text-green-800 mb-6">
+              Informasi & Kegiatan Terbaru
+            </h3>
+          </div>
+
+          <!-- News Content -->
+          <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <!-- News Image -->
+            <div class="fade-in">
+              <div class="relative">
+                <div
+                  class="absolute inset-0 bg-gradient-to-br from-green-200 to-emerald-200 rounded-3xl transform -rotate-3"
+                ></div>
+                <div
+                  class="relative bg-white rounded-3xl shadow-xl overflow-hidden"
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1706806595136-5afefb45da1a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwyfHxjb21tdW5pdHklMjBoZWFsdGhjYXJlfGVufDB8fHx8MTc1OTgwNDY3Nnww&ixlib=rb-4.0.1&q=85"
+                    alt="Kegiatan Posyandu"
+                    class="w-full h-80 md:h-96 object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- News Content -->
+            <div class="fade-in">
+              <div
+                class="bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-8 shadow-lg"
+              >
+                <div class="flex items-center gap-3 mb-4">
+                  <div
+                    class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-4 h-4 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <span class="text-green-600 font-medium"
+                    >10 Oktober 2025</span
+                  >
+                </div>
+
+                <h4 class="text-2xl md:text-3xl font-bold text-green-800 mb-4">
+                  Jadwal Posyandu Bulan Oktober
+                </h4>
+
+                <p class="text-green-700 text-lg mb-6 leading-relaxed">
+                  Posyandu bulan Oktober akan dilaksanakan pada tanggal 10 di
+                  Balai Desa. Semua warga diundang untuk hadir bersama balita
+                  mereka untuk pemeriksaan kesehatan rutin.
+                </p>
+
+                <div class="flex flex-wrap gap-2 mb-6">
+                  <span
+                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
+                    >#Posyandu</span
+                  >
+                  <span
+                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
+                    >#KesehatanAnak</span
+                  >
+                  <span
+                    class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium"
+                    >#BalaiDesa</span
+                  >
+                </div>
+
+                <div class="flex items-center gap-4 text-green-600">
+                  <div class="flex items-center gap-2">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      ></path>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      ></path>
+                    </svg>
+                    <span class="text-sm">Balai Desa</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                    <span class="text-sm">08:00 - 12:00 WIB</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <!-- Footer -->
+    <footer class="bg-green-800 text-white py-12">
+      <div class="container mx-auto px-4 max-w-7xl">
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- Company Info -->
+          <div class="fade-in">
+            <div class="flex items-center gap-3 mb-4">
+              <div
+                class="w-8 h-8 bg-white rounded-lg flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  ></path>
+                </svg>
+              </div>
+              <h4 class="text-xl font-bold">Posyandu Melati 1</h4>
+            </div>
+            <p class="text-green-100 mb-4">
+              Melayani kesehatan keluarga Indonesia dengan sepenuh hati dan
+              komitmen untuk masa depan yang lebih sehat.
+            </p>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="fade-in">
+            <h4 class="text-lg font-semibold mb-4">Layanan</h4>
+            <ul class="space-y-2 text-green-100">
+              <li>Pemeriksaan Kesehatan</li>
+              <li>Imunisasi Balita</li>
+              <li>Konsultasi Gizi</li>
+              <li>Monitoring Tumbuh Kembang</li>
+            </ul>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="fade-in">
+            <h4 class="text-lg font-semibold mb-4">Hubungi Kami</h4>
+            <div class="space-y-2 text-green-100">
+              <div class="flex items-center gap-2">
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  ></path>
+                </svg>
+                <span>Jl. Melati No. 1, Desa Sehat</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  ></path>
+                </svg>
+                <span>(021) 123-4567</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="border-t border-green-700 mt-8 pt-8 text-center text-green-100"
+        >
+          <p>
+            &copy; 2025 Posyandu Melati 1 - Kelompok 3 Kapita Selekta ITERA
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/dashboard.js"></script>
+  </body>
+</html>
