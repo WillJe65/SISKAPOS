@@ -1,60 +1,69 @@
-// server.js
+// Import necessary packages
 const express = require('express');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
-// Load API Key from .env file
+// Load environment variables from .env file
 dotenv.config();
 
+// Initialize Express app
 const app = express();
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const port = 3000; // You can use any port
 
-// Middleware setup
-app.use(cors());
+// --- Middleware ---
+// Enable CORS to allow requests from your frontend
+app.use(cors()); 
+// Enable Express to parse JSON in request bodies
 app.use(express.json());
 
-// Define the API endpoint
-app.post('/generate-result', async (req, res) => {
-  try {
-    const { nama, umur, jenisKelamin, beratBadan, tinggiBadan, lingkarKepala } = req.body;
+// Initialize the Google Generative AI client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    // Create a detailed prompt for the AI
+// --- API Endpoint ---
+// Define a POST endpoint to handle recommendation requests
+app.post('/api/generate-recommendation', async (req, res) => {
+  try {
+    // Get the child's data from the request body
+    const { namaAnak, umur, jenisKelamin, beratBadan, tinggiBadan, bmi, statusGizi } = req.body;
+
+    // --- Prompt Engineering ---
+    // Create a detailed prompt for the Gemini AI
     const prompt = `
-      Anda adalah seorang asisten ahli gizi di Posyandu.
-      Analisis data antropometri anak berikut dan berikan ringkasan status gizinya dalam bahasa yang mudah dipahami orang tua.
+      Anda adalah seorang ahli gizi anak yang ramah dan membantu dari Posyandu Melati 1.
+      Berikan 2-3 rekomendasi singkat, jelas, dan dapat ditindaklanjuti untuk orang tua berdasarkan data anak berikut.
+      Gunakan bahasa Indonesia yang mudah dimengerti. Jangan gunakan format markdown.
 
       Data Anak:
-      - Nama: ${nama}
+      - Nama: ${namaAnak}
       - Umur: ${umur} bulan
       - Jenis Kelamin: ${jenisKelamin}
       - Berat Badan: ${beratBadan} kg
       - Tinggi Badan: ${tinggiBadan} cm
-      - Lingkar Kepala: ${lingkarKepala} cm
+      - BMI: ${bmi.toFixed(1)}
+      - Status Gizi (berdasarkan BMI sederhana): ${statusGizi}
 
-      Format output Anda harus sebagai berikut:
-      1.  **Ringkasan Umum:** Satu paragraf kesimpulan.
-      2.  **Indikator Utama:** Poin-poin untuk status berat badan, tinggi badan, dan lingkar kepala.
-      3.  **Saran Positif:** Satu kalimat saran yang memotivasi.
-      4.   Berikan referensi dari sumber terpercaya seperti WHO atau Kementerian Kesehatan Indonesia beserta linknya.
-      5.   Susun jawaban dengan rapih dan mudah dibaca.
+      Contoh output: "Fokus pada prinsip-prinsip umum (misalnya: "pentingnya variasi makanan" atau "perlunya stimulasi motorik kasar")."
+
+      Berikan rekomendasi sekarang:
     `;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // Generate content using the prompt
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
+    const recommendationText = response.text();
 
-    // Send the AI's analysis back to the frontend
-    res.json({ result: text });
+    // Send the generated text back to the frontend
+    res.json({ recommendation: recommendationText });
 
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Failed to get a response from the AI.' });
+    console.error("Error generating recommendation:", error);
+    res.status(500).json({ error: "Gagal menghasilkan rekomendasi." });
   }
 });
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Server is running on http://localhost:${PORT}`);
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
 });
