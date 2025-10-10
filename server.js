@@ -1,21 +1,22 @@
 // Import necessary packages
-const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const dotenv = require('dotenv');
-const cors = require('cors');
+const express = require('express')
+const {GoogleGenerativeAI} = require('@google/generative-ai')
+const dotenv = require('dotenv')
+const cors = require('cors')
 
 // Load environment variables from .env file
 dotenv.config();
 
 // Initialize Express app
 const app = express();
-const port = 3000; // You can use any port
+const port = 5000; // You can use any port
 
 // --- Middleware ---
 // Enable CORS to allow requests from your frontend
 app.use(cors()); 
 // Enable Express to parse JSON in request bodies
 app.use(express.json());
+
 
 // Initialize the Google Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -62,6 +63,9 @@ app.post('/api/generate-recommendation', async (req, res) => {
     res.status(500).json({ error: "Gagal menghasilkan rekomendasi." });
   }
 });
+
+const authRoutes = require('./BACKEND/routes/auth.js');
+app.use('/api/auth', authRoutes);
 
 // Start the server
 app.listen(port, () => {
