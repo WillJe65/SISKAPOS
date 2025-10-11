@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         // --- 3. Call our backend API ---
-        const apiResponse = await fetch('http://localhost:3000/api/generate-recommendation', {
+        const apiResponse = await fetch('http://localhost:5000/api/generate-recommendation', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
