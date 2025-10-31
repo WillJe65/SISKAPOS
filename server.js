@@ -17,6 +17,11 @@ app.use(cors());
 // Enable Express to parse JSON in request bodies
 app.use(express.json());
 
+const authRoutes = require('./BACKEND/routes/auth.js');
+const apiRoutes = require('./BACKEND/routes/API.js'); // <-- import router
+
+app.use('/api/auth', authRoutes);
+app.use('/api', apiRoutes); // mount API router under /api
 
 // Initialize the Google Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
