@@ -4,7 +4,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '', // ubah sesuai database kamu
-  database: 'siskapos_db'
+  database: process.env.DB
 });
 
 db.connect(err => {
