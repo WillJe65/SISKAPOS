@@ -18,10 +18,11 @@ app.use(cors());
 app.use(express.json());
 
 const authRoutes = require('./BACKEND/routes/auth.js');
-const apiRoutes = require('./BACKEND/routes/API.js'); // <-- import router
+const accountsRoutes = require('./BACKEND/routes/accounts_v2.js');
 
 app.use('/api/auth', authRoutes);
-app.use('/api', apiRoutes); // mount API router under /api
+// Mount accounts router at /api/accounts so frontend can call /api/accounts
+app.use('/api/accounts', accountsRoutes);
 
 // Initialize the Google Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -69,8 +70,7 @@ app.post('/api/generate-recommendation', async (req, res) => {
   }
 });
 
-const authRoutes = require('./BACKEND/routes/auth.js');
-app.use('/api/auth', authRoutes);
+// auth routes already mounted above
 
 // Start the server
 app.listen(port, () => {

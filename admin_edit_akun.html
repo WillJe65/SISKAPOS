@@ -530,6 +530,17 @@
         </div>
 
         <form id="accountForm" class="space-y-4">
+          <!-- User credentials (only shown when adding new account) -->
+          <div id="userCredentials" class="space-y-4 hidden">
+            <div>
+              <label for="username" class="block text-sm font-medium text-green-700 mb-2">Username</label>
+              <input type="text" id="username" class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500" />
+            </div>
+            <div>
+              <label for="password" class="block text-sm font-medium text-green-700 mb-2">Password</label>
+              <input type="password" id="password" class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500" />
+            </div>
+          </div>
           <div>
             <label
               for="namaLengkap"
