@@ -122,30 +122,36 @@ function deleteAccount(id) {
     }
   })
     .then(async (res) => {
-      const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 401) {
-          localStorage.removeItem('token');
-          window.location.href = 'login.html';
-          throw new Error('Sesi habis. Silakan login kembali.');
-        }
-        throw new Error(data.message || 'Gagal menghapus data');
-      }
-      return data;
-    })
-    .then(() => {
-      showNotification('Akun berhasil dihapus!', 'success');
-      loadAccounts(); // Refresh the table
-    })
-    .catch((err) => {
-      console.error('Error:', err);
-      showNotification(err.message, 'error');
-      // Restore row state if delete failed
-      if (row) {
-        row.style.opacity = '1';
-        row.style.pointerEvents = 'auto';
-      }
-    });
+  // PERBAIKAN: Handle response dengan benar
+  const responseText = await res.text();
+  let data;
+  
+  try {
+    data = responseText ? JSON.parse(responseText) : {};
+  } catch (e) {
+    console.error('JSON parse error:', e);
+    throw new Error('Format respons server tidak valid');
+  }
+
+  if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+      throw new Error('Sesi habis. Silakan login kembali.');
+    }
+    throw new Error(data.message || data.error || 'Gagal menghapus data');
+  }
+  
+  return data;
+})
+    .then((data) => {
+  if (data.success === false) {
+    throw new Error(data.message || 'Gagal menghapus akun');
+  }
+  
+  showNotification(data.message || 'Akun berhasil dihapus!', 'success');
+  loadAccounts(currentPage); // Refresh the table
+})
 }
 
 // Fungsi untuk menangani submit form
@@ -245,6 +251,15 @@ document.getElementById('accountForm').addEventListener('submit', async function
       });
     }
 
+    // Log the request details in debug mode
+    if (debug) {
+      console.log('Sending edit request:', {
+        url,
+        method: editingId ? 'PUT' : 'POST',
+        formData
+      });
+    }
+
     const response = await fetch(url, {
       method: editingId ? 'PUT' : 'POST',
       headers: { 
@@ -260,52 +275,27 @@ document.getElementById('accountForm').addEventListener('submit', async function
 
     if (debug) console.log('API Response status:', response.status);
 
-    let data;
-    try {
-      // Log response details for debugging
-      if (debug) {
-        console.log('Response status:', response.status);
-        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-        console.log('Response type:', response.type);
-        console.log('Content-Type:', response.headers.get('content-type'));
-      }
+    const responseText = await response.text();
+let data;
 
-      // Get the raw response text
-      const responseText = await response.text().catch(error => {
-        console.error('Error reading response text:', error);
-        throw new Error('Gagal membaca respons dari server: ' + error.message);
-      });
+try {
+  data = responseText ? JSON.parse(responseText) : {};
+  if (debug) console.log('Parsed API Response data:', data);
+} catch (parseError) {
+  console.error('JSON Parse Error:', parseError);
+  throw new Error('Format respons server tidak valid');
+}
 
-      if (debug) {
-        console.log('Raw server response:', responseText);
-      }
-
-      // Check if response is empty
-      if (!responseText) {
-        throw new Error('Server mengembalikan respons kosong');
-      }
-
-      // Try to parse as JSON
-      try {
-        data = JSON.parse(responseText);
-        if (debug) console.log('Parsed API Response data:', data);
-      } catch (parseError) {
-        console.error('JSON Parse Error:', parseError);
-        console.error('Response Text:', responseText);
-        
-        // Try to provide more helpful error message based on response content
-        let errorMessage = 'Format respons server tidak valid';
-        if (responseText.includes('<!DOCTYPE html>')) {
-          errorMessage = 'Server mengembalikan halaman HTML, bukan data JSON';
-        } else if (responseText.includes('error')) {
-          errorMessage = 'Server mengembalikan pesan error: ' + responseText.substring(0, 100);
-        }
-        throw new Error(errorMessage);
-      }
-    } catch (e) {
-      console.error('Response processing error:', e);
-      throw new Error('Gagal memproses respons dari server: ' + e.message);
-    }
+if (!response.ok) {
+  const errorMessage = data.message || data.error || `Error ${response.status}`;
+  
+  if (response.status === 401) {
+    handleTokenError();
+    throw new Error('Sesi habis. Silakan login kembali.');
+  }
+  
+  throw new Error(errorMessage);
+}
 
     if (!response.ok) {
       console.error('Server response not OK:', { status: response.status, statusText: response.statusText, data: data });
@@ -327,19 +317,17 @@ document.getElementById('accountForm').addEventListener('submit', async function
       throw new Error(serverMessage || `Error ${response.status}: Gagal menyimpan data`);
     }
 
-    // Validate successful response structure
-    if (!data || typeof data !== 'object') {
+     // For successful edit/create, response should have success flag or message
+    if (!data || (typeof data !== 'object' && !data.message)) {
       console.error('Invalid response structure:', data);
       throw new Error('Format data dari server tidak sesuai');
     }
 
     closeModal();
-    showNotification(
-      editingId ? 'Data akun berhasil diperbarui!' : 'Akun baru berhasil ditambahkan!', 
-      'success'
-    );
-    
-    // Reset to first page when adding new account, stay on current page when editing
+showNotification(
+  data.message || (editingId ? 'Data akun berhasil diperbarui!' : 'Akun baru berhasil ditambahkan!'), 
+  'success'
+);    // Reset to first page when adding new account, stay on current page when editing
     await loadAccounts(editingId ? currentPage : 1);
     
   } catch (err) {

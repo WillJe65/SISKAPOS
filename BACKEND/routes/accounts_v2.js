@@ -155,73 +155,163 @@ router.post('/', verifyToken, async (req, res) => {
   console.log('Creating new account for username:', username);
   console.log('POST /api/accounts payload:', req.body);
 
+  let transactionStarted = false;
+
   try {
     // Basic validation
-    if (!username || typeof username !== 'string' || username.length < 4) {
-      return res.status(400).json({ message: 'Username wajib diisi dan minimal 4 karakter' });
-    }
-    if (!password || typeof password !== 'string' || password.length < 6) {
-      return res.status(400).json({ message: 'Password wajib diisi dan minimal 6 karakter' });
-    }
-    if (!nama_lengkap || !umur_bulan || !jenis_kelamin) {
-      return res.status(400).json({ message: 'Nama, umur, dan jenis kelamin wajib diisi' });
+    if (!username || typeof username !== 'string' || username.trim().length < 4) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Username wajib diisi dan minimal 4 karakter' 
+      });
     }
 
-  await beginTransaction();
+    if (!password || typeof password !== 'string' || password.length < 6) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Password wajib diisi dan minimal 6 karakter' 
+      });
+    }
+
+    if (!nama_lengkap || typeof nama_lengkap !== 'string' || nama_lengkap.trim().length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Nama lengkap wajib diisi' 
+      });
+    }
+
+    if (!umur_bulan || isNaN(Number(umur_bulan)) || Number(umur_bulan) < 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Umur bulan wajib diisi dan harus angka valid' 
+      });
+    }
+
+    if (!jenis_kelamin) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Jenis kelamin wajib diisi' 
+      });
+    }
+
+    // Validasi nomor HP jika diisi
+    if (nomor_hp && (typeof nomor_hp !== 'string' || nomor_hp.length > 15)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Nomor HP maksimal 15 karakter' 
+      });
+    }
+
+    // Start transaction
+    await beginTransaction();
+    transactionStarted = true;
 
     // Normalize jenis_kelamin to match DB enum values
     let jenisKelaminNormalized = null;
     if (jenis_kelamin) {
-      const jk = String(jenis_kelamin).toLowerCase();
-      if (jk.includes('laki')) jenisKelaminNormalized = 'Laki-laki';
-      else if (jk.includes('perempuan')) jenisKelaminNormalized = 'Perempuan';
-      else jenisKelaminNormalized = jenis_kelamin; // fallback to provided
+      const jk = String(jenis_kelamin).toLowerCase().trim();
+      if (jk.includes('laki') || jk === 'l' || jk === 'laki') {
+        jenisKelaminNormalized = 'Laki-laki';
+      } else if (jk.includes('perempuan') || jk === 'p' || jk === 'perempuan') {
+        jenisKelaminNormalized = 'Perempuan';
+      } else {
+        jenisKelaminNormalized = jenis_kelamin; // fallback to provided
+      }
     }
 
-    // Check if username already exists
-    const [existingUser] = await query(
+    // PERBAIKAN: Check if username already exists - tanpa destructuring
+    const existingUserResult = await query(
       'SELECT username FROM users WHERE username = ?',
-      [username]
+      [username.trim()]
     );
 
-    if (existingUser) {
+    // PERBAIKAN: Cek hasil query dengan benar
+    if (existingUserResult && existingUserResult.length > 0) {
       console.log('Username already exists:', username);
-  await rollback();
-      return res.status(400).json({ message: 'Username sudah digunakan' });
+      await rollback();
+      return res.status(400).json({ 
+        success: false,
+        message: 'Username sudah digunakan' 
+      });
     }
 
-    // Insert into accounts
-    const [accountResult] = await query(
+    // Trim and clean data
+    const cleanUsername = username.trim();
+    const cleanNamaLengkap = nama_lengkap.trim();
+    const cleanNamaOrangTua = nama_orang_tua ? nama_orang_tua.trim() : null;
+    const cleanAlamat = alamat ? alamat.trim() : null;
+    const cleanNomorHp = nomor_hp ? nomor_hp.trim() : null;
+
+    // PERBAIKAN: Insert into accounts - tanpa destructuring
+    const accountResult = await query(
       `INSERT INTO accounts 
         (username, nama_lengkap, umur_bulan, jenis_kelamin, nama_orang_tua, alamat, nomor_hp)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [username, nama_lengkap, umur_bulan, jenisKelaminNormalized, nama_orang_tua, alamat, nomor_hp]
+      [
+        cleanUsername, 
+        cleanNamaLengkap, 
+        Number(umur_bulan), 
+        jenisKelaminNormalized, 
+        cleanNamaOrangTua, 
+        cleanAlamat, 
+        cleanNomorHp
+      ]
     );
 
     // Update password if provided (trigger will have created the user)
     if (password) {
       await query(
         'UPDATE users SET password = ? WHERE username = ?',
-        [password, username]
+        [password, cleanUsername]
       );
     }
 
-  await commit();
-    console.log('Account created successfully for:', username);
+    await commit();
+    transactionStarted = false;
+
+    console.log('Account created successfully for:', cleanUsername);
     res.status(201).json({ 
+      success: true,
       message: 'Akun berhasil dibuat',
       id: accountResult.insertId
     });
+
   } catch (error) {
-    await rollback();
     console.error('Error creating account:', error);
-    const details = {};
-    if (error && error.sqlMessage) details.sqlMessage = error.sqlMessage;
-    res.status(500).json({ 
-      message: 'Gagal membuat akun', 
-      error: error.message,
-      details
-    });
+    
+    // Rollback hanya jika transaction sudah dimulai
+    if (transactionStarted) {
+      try {
+        await rollback();
+      } catch (rollbackError) {
+        console.error('Error during rollback:', rollbackError);
+      }
+    }
+
+    // Handle specific database errors
+    let errorMessage = 'Gagal membuat akun';
+    let statusCode = 500;
+
+    if (error.code === 'ER_DUP_ENTRY') {
+      errorMessage = 'Username sudah digunakan';
+      statusCode = 400;
+    } else if (error.code === 'ER_NO_REFERENCED_ROW' || error.code === 'ER_NO_REFERENCED_ROW_2') {
+      errorMessage = 'Data referensi tidak valid';
+      statusCode = 400;
+    }
+
+    const errorResponse = {
+      success: false,
+      message: errorMessage,
+      error: error.message
+    };
+
+    // Tambahkan detail SQL error hanya di development
+    if (process.env.NODE_ENV !== 'production' && error.sqlMessage) {
+      errorResponse.details = { sqlMessage: error.sqlMessage };
+    }
+
+    res.status(statusCode).json(errorResponse);
   }
 });
 
@@ -241,15 +331,36 @@ router.put('/:id', verifyToken, async (req, res) => {
   console.log('PUT /api/accounts/' + req.params.id + ' payload:', req.body);
 
   try {
-  await beginTransaction();
+    await beginTransaction();
+
+    // Validate ID
+    if (!req.params.id || isNaN(Number(req.params.id))) {
+      await rollback();
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID akun tidak valid'
+      });
+    }
 
     // Basic validation
     if (!nama_lengkap || isNaN(Number(umur_bulan)) || !jenis_kelamin) {
       await rollback();
-      return res.status(400).json({ message: 'Nama, umur, dan jenis kelamin wajib diisi' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Nama, umur, dan jenis kelamin wajib diisi'
+      });
     }
 
-    // Normalize jenis_kelamin to match DB enum values
+    // Log the validated data
+    console.log('Validated update data:', {
+      id: req.params.id,
+      nama_lengkap,
+      umur_bulan,
+      jenis_kelamin,
+      nama_orang_tua,
+      alamat,
+      nomor_hp
+    });    // Normalize jenis_kelamin to match DB enum values
     let jenisKelaminNormalized = null;
     if (jenis_kelamin) {
       const jk = String(jenis_kelamin).toLowerCase();
@@ -258,24 +369,53 @@ router.put('/:id', verifyToken, async (req, res) => {
       else jenisKelaminNormalized = jenis_kelamin; // fallback
     }
 
-    // Update account info
-    const [result] = await query(
-      `UPDATE accounts 
-       SET nama_lengkap = ?, 
-           umur_bulan = ?, 
-           jenis_kelamin = ?,
-           nama_orang_tua = ?,
-           alamat = ?,
-           nomor_hp = ?
-       WHERE id = ?`,
-      [nama_lengkap, umur_bulan, jenisKelaminNormalized, nama_orang_tua, alamat, nomor_hp, req.params.id]
+    // First check if account exists
+    const [existingAccount] = await query(
+      'SELECT id FROM accounts WHERE id = ?',
+      [req.params.id]
     );
 
-    if (result.affectedRows === 0) {
-      console.log('Account not found for update, ID:', req.params.id);
-  await rollback();
-      return res.status(404).json({ message: 'Account not found' });
+    if (!existingAccount) {
+      await rollback();
+      return res.status(404).json({
+        success: false,
+        message: 'Akun tidak ditemukan'
+      });
     }
+
+    // Update account info
+    console.log('Executing update with params:', {
+      nama_lengkap,
+      umur_bulan,
+      jenis_kelamin: jenisKelaminNormalized,
+      nama_orang_tua,
+      alamat,
+      nomor_hp,
+      id: req.params.id
+    });
+    
+    try {
+      const [result] = await query(
+        'UPDATE accounts SET nama_lengkap = ?, umur_bulan = ?, jenis_kelamin = ?, nama_orang_tua = ?, alamat = ?, nomor_hp = ? WHERE id = ?',
+        [nama_lengkap, umur_bulan, jenisKelaminNormalized, nama_orang_tua, alamat, nomor_hp, req.params.id]
+      );
+      
+      console.log('Update query result:', result);
+      
+      if (result.affectedRows === 0) {
+        await rollback();
+        return res.status(404).json({
+          success: false,
+          message: 'Akun tidak ditemukan atau tidak ada perubahan'
+        });
+      }
+    } catch (error) {
+      console.error('Error executing update query:', error);
+      await rollback();
+      throw error;
+    }
+
+    console.log('Update successful:', { affectedRows: result.affectedRows });
 
     // If password provided, update it
     if (password) {
@@ -288,38 +428,92 @@ router.put('/:id', verifyToken, async (req, res) => {
       );
     }
 
-  await commit();
+    await commit();
     console.log('Account updated successfully, ID:', req.params.id);
-    res.json({ message: 'Account updated successfully' });
+    res.json({ 
+      success: true,
+      message: 'Akun berhasil diperbarui',
+      id: req.params.id
+    });
   } catch (error) {
-    await rollback();
     console.error('Error updating account:', error);
-    const details = {};
-    if (error && error.sqlMessage) details.sqlMessage = error.sqlMessage;
-    res.status(500).json({ message: 'Gagal memperbarui akun', error: error.message, details });
+    try {
+      await rollback();
+    } catch (rollbackError) {
+      console.error('Rollback failed:', rollbackError);
+    }
+
+    const errorResponse = {
+      success: false,
+      message: 'Gagal memperbarui akun',
+      error: error.message,
+      details: {}
+    };
+
+    if (error.sqlMessage) {
+      errorResponse.details.sqlMessage = error.sqlMessage;
+    }
+    
+    // Log the complete error state
+    console.error('Sending error response:', errorResponse);
+    
+    res.status(500).json(errorResponse);
   }
 });
 
-// Delete account
+// Delete account - SIMPLE VERSION
 router.delete('/:id', verifyToken, async (req, res) => {
   console.log('Deleting account ID:', req.params.id);
   
   try {
-    const [result] = await query(
-      'DELETE FROM accounts WHERE id = ?',
-      [req.params.id]
-    );
-
-    if (result.affectedRows === 0) {
-      console.log('Account not found for deletion, ID:', req.params.id);
-      return res.status(404).json({ message: 'Account not found' });
+    const accountId = parseInt(req.params.id);
+    if (!accountId || isNaN(accountId)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'ID akun tidak valid' 
+      });
     }
 
-    console.log('Account deleted successfully, ID:', req.params.id);
-    res.json({ message: 'Account deleted successfully' });
+    // Gunakan approach yang lebih robust
+    const result = await query(
+      'DELETE FROM accounts WHERE id = ?',
+      [accountId]
+    );
+
+    // Universal affectedRows check
+    const affectedRows = 
+      result?.affectedRows ?? 
+      result?.[0]?.affectedRows ?? 
+      result?.rows?.affectedRows ?? 
+      0;
+
+    console.log('Delete operation - affectedRows:', affectedRows);
+
+    if (affectedRows === 0) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Akun tidak ditemukan' 
+      });
+    }
+
+    res.json({ 
+      success: true,
+      message: 'Akun berhasil dihapus',
+      deletedId: accountId
+    });
+
   } catch (error) {
     console.error('Error deleting account:', error);
-    res.status(500).json({ message: 'Server error', details: error.message });
+    
+    let errorMessage = 'Gagal menghapus akun';
+    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
+      errorMessage = 'Tidak dapat menghapus akun karena masih terdapat data terkait';
+    }
+
+    res.status(500).json({ 
+      success: false,
+      message: errorMessage
+    });
   }
 });
 
