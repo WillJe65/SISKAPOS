@@ -1,3 +1,9 @@
+// admin-input-data.js
+
+// State global untuk menyimpan data form
+let currentFormData = null;
+let selectedAccountId = null;
+
 // Navigation functions
 function goBack() {
   window.location.href = "admin_dashboard.html";
@@ -5,7 +11,80 @@ function goBack() {
 
 function logout() {
   if (confirm("Apakah Anda yakin ingin logout?")) {
+    localStorage.removeItem('token');
     window.location.href = "dashboard.html";
+  }
+}
+
+// --- FUNGSI BARU UNTUK LOAD AKUN ---
+async function loadAccountsIntoDropdown() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  try {
+    // Ambil semua akun (tanpa pagination) untuk dropdown
+    const response = await fetch('http://localhost:5000/api/accounts?limit=1000', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!response.ok) throw new Error('Gagal memuat data akun');
+    
+    const { data } = await response.json();
+    
+    // Temukan elemen input teks 'namaAnak'
+    const namaAnakInput = document.getElementById('namaAnak');
+    
+    // Buat elemen select baru
+    const selectEl = document.createElement('select');
+    selectEl.id = 'namaAnakSelect'; // Beri ID baru
+    selectEl.required = true;
+    selectEl.className = 'block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white';
+    
+    // Tambahkan opsi default
+    selectEl.innerHTML = '<option value="">-- Pilih Anak --</option>';
+    
+    // Isi dropdown dengan data akun
+    data.forEach(akun => {
+      const option = document.createElement('option');
+      option.value = akun.id;
+      option.textContent = `${akun.nama_lengkap} (Username: ${akun.username})`;
+      // Simpan data tambahan di elemen option
+      option.dataset.umur = akun.umur_bulan;
+      option.dataset.kelamin = akun.jenis_kelamin;
+      selectEl.appendChild(option);
+    });
+
+    // Ganti input teks dengan select dropdown
+    namaAnakInput.parentNode.replaceChild(selectEl, namaAnakInput);
+
+    // Tambahkan event listener ke select baru
+    selectEl.addEventListener('change', (e) => {
+      selectedAccountId = e.target.value;
+      const selectedOption = e.target.options[e.target.selectedIndex];
+      
+      if (selectedOption.value) {
+        // Isi otomatis form umur dan jenis kelamin
+        document.getElementById('umur').value = selectedOption.dataset.umur || '';
+        document.getElementById('jenisKelamin').value = selectedOption.dataset.kelamin ? selectedOption.dataset.kelamin.toLowerCase() : '';
+        // Kunci field agar tidak bisa diubah
+        // document.getElementById('umur').readOnly = true; // Biarkan bisa di-edit jika umur bertambah
+        document.getElementById('jenisKelamin').disabled = true;
+      } else {
+        // Kosongkan dan buka kunci jika opsi default dipilih
+        document.getElementById('umur').value = '';
+        document.getElementById('jenisKelamin').value = '';
+        // document.getElementById('umur').readOnly = false;
+        document.getElementById('jenisKelamin').disabled = false;
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert('Gagal memuat daftar anak. Halaman akan dimuat ulang.');
+    location.reload();
   }
 }
 
@@ -16,7 +95,6 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
   const submitBtn = document.getElementById("submitBtn");
   const originalBtnText = submitBtn.innerHTML;
 
-  // 1. Tambahkan loading state pada tombol submit
   submitBtn.disabled = true;
   submitBtn.innerHTML = `
     <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
@@ -27,36 +105,55 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
   `;
 
   // Ambil data dari form
-  const nama = document.getElementById("namaAnak").value;
+  const selectEl = document.getElementById('namaAnakSelect');
+  if (!selectEl || !selectEl.value) {
+     alert('Silakan pilih anak terlebih dahulu.');
+     submitBtn.disabled = false;
+     submitBtn.innerHTML = originalBtnText;
+     return;
+  }
+  
+  const selectedOption = selectEl.options[selectEl.selectedIndex];
+  const nama = selectedOption.text.split(' (')[0]; // Ambil nama saja
+  
   const umur = parseInt(document.getElementById("umur").value);
   const jenisKelamin = document.getElementById("jenisKelamin").value;
   const beratBadan = parseFloat(document.getElementById("beratBadan").value);
   const tinggiBadan = parseFloat(document.getElementById("tinggiBadan").value);
   const lingkarKepala = parseFloat(document.getElementById("lingkarKepala").value);
+  
+  if (isNaN(umur) || isNaN(beratBadan) || isNaN(tinggiBadan)) {
+     alert('Umur, Berat Badan, dan Tinggi Badan wajib diisi angka.');
+     submitBtn.disabled = false;
+     submitBtn.innerHTML = originalBtnText;
+     return;
+  }
 
-  // Hitung BMI dan tentukan status gizi awal secara lokal
+
   const bmi = beratBadan / Math.pow(tinggiBadan / 100, 2);
   let statusGizi, statusClass;
 
-  if (bmi < 14) {
+  // Logika status gizi sederhana (bisa disesuaikan)
+  if (bmi < 17.0) { // Contoh batas BMI
     statusGizi = "Gizi Kurang";
     statusClass = "bg-yellow-100 text-yellow-800";
-  } else if (bmi < 12) {
-    statusGizi = "Gizi Buruk";
-    statusClass = "bg-red-100 text-red-800";
-  } else if (bmi > 18) {
+  } else if (bmi >= 17.0 && bmi <= 23.0) {
+    statusGizi = "Normal";
+    statusClass = "bg-green-100 text-green-800";
+  } else if (bmi > 23.0 && bmi <= 27.0) {
     statusGizi = "Gizi Lebih";
     statusClass = "bg-orange-100 text-orange-800";
   } else {
-    statusGizi = "Normal";
-    statusClass = "bg-green-100 text-green-800";
+    statusGizi = "Obesitas";
+    statusClass = "bg-red-100 text-red-800";
   }
+  // Anda harus mengganti ini dengan standar WHO (Z-score) untuk akurasi
+  // Ini hanya placeholder sederhana
 
   let rekomendasiAI = "";
 
   try {
-    // 2. Panggil backend API untuk mendapatkan rekomendasi dari Gemini
-    const apiResponse = await fetch('http://localhost:3000/api/generate-recommendation', {
+    const apiResponse = await fetch('http://localhost:5000/api/generate-recommendation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -79,25 +176,34 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
 
   } catch (error) {
     console.error("Failed to fetch AI recommendation:", error);
-    rekomendasiAI = "Gagal memuat rekomendasi dari AI. Pastikan server backend berjalan dan coba lagi. Untuk sementara, mohon berikan saran gizi seimbang dan aktivitas fisik yang cukup sesuai usia anak.";
+    rekomendasiAI = "Gagal memuat rekomendasi dari AI. Mohon berikan saran gizi seimbang.";
   }
 
-  // 3. Tampilkan hasil di halaman
+  // Simpan data di state global untuk fungsi simpanData()
+  currentFormData = {
+    account_id: selectedAccountId,
+    umur,
+    beratBadan,
+    tinggiBadan,
+    lingkarKepala: !isNaN(lingkarKepala) ? lingkarKepala : null, // Kirim null jika kosong
+    bmi: bmi.toFixed(1),
+    statusGizi,
+    rekomendasiAI
+  };
+
   const dataHasil = {
     bmi: bmi.toFixed(1),
     statusGizi: statusGizi,
     statusClass: statusClass,
-    rekomendasiAI: rekomendasiAI, // Gunakan rekomendasi dari AI
+    rekomendasiAI: rekomendasiAI,
   };
 
   tampilkanHasil(nama, dataHasil);
 
-  // 4. Kembalikan tombol ke state semula
   submitBtn.disabled = false;
   submitBtn.innerHTML = originalBtnText;
 });
 
-// --- MODIFIED FUNGSI UNTUK MENAMPILKAN HASIL ---
 function tampilkanHasil(nama, hasil) {
   const hasilDiv = document.getElementById("hasilAnalisis");
 
@@ -105,9 +211,7 @@ function tampilkanHasil(nama, hasil) {
     <div class="space-y-4">
         <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
             <h4 class="font-semibold text-green-800 text-lg">Hasil Analisis untuk: ${nama}</h4>
-            <p class="text-green-600 text-sm">Tanggal: ${new Date().toLocaleDateString("id-ID")}</p>
         </div>
-
         <div class="border border-gray-200 rounded-lg p-4">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-gray-700 font-medium">Status Gizi:</span>
@@ -120,17 +224,12 @@ function tampilkanHasil(nama, hasil) {
                 <span class="text-gray-900 font-semibold">${hasil.bmi}</span>
             </div>
         </div>
-
         <div class="border border-gray-200 rounded-lg p-4">
             <h5 class="font-semibold text-gray-800 mb-3">💡 Rekomendasi AI:</h5>
             <p class="text-gray-700 text-sm whitespace-pre-line">${hasil.rekomendasiAI}</p>
-            <p class="text-xs text-gray-500 mt-3">
-              Catatan: Rekomendasi ini dihasilkan AI. Selalu validasi dengan pengetahuan medis profesional.
-            </p>
         </div>
-
         <div class="flex gap-2 pt-2">
-            <button onclick="simpanData()" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            <button onclick="simpanData()" id="saveBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                 Simpan Data
             </button>
             <button onclick="resetForm()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
@@ -141,40 +240,89 @@ function tampilkanHasil(nama, hasil) {
   `;
 }
 
-function simpanData() {
-  alert("Data berhasil disimpan! (fungsi simulasi)");
-  // Implementasi penyimpanan data bisa ditambahkan di sini
-  // Anda mungkin ingin menyimpan `rekomendasiAI` juga
+// --- FUNGSI BARU UNTUK SIMPAN DATA ---
+async function simpanData() {
+  if (!currentFormData) {
+    alert("Tidak ada data untuk disimpan.");
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.innerText = 'Menyimpan...';
+
+  try {
+    const response = await fetch('http://localhost:5000/api/antropometri', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(currentFormData),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Gagal menyimpan data.');
+    }
+
+    alert(result.message || "Data berhasil disimpan!");
+    resetForm();
+
+  } catch (err) {
+    console.error("Gagal menyimpan data:", err);
+    alert("Gagal menyimpan data: " + err.message);
+    saveBtn.disabled = false;
+    saveBtn.innerText = 'Simpan Data';
+  }
 }
 
 function resetForm() {
   document.getElementById("dataForm").reset();
+  
+  // Buka kunci field
+  // document.getElementById('umur').readOnly = false;
+  document.getElementById('jenisKelamin').disabled = false;
+  
+  // Reset dropdown
+  const selectEl = document.getElementById('namaAnakSelect');
+  if (selectEl) {
+    selectEl.selectedIndex = 0;
+  }
+  
+  // Reset state
+  currentFormData = null;
+  selectedAccountId = null;
+  
   document.getElementById("hasilAnalisis").innerHTML = `
     <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
         <svg class="w-12 h-12 mx-auto text-green-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
         </svg>
         <p class="text-green-700 font-medium">Silakan isi form di sebelah kiri</p>
-        <p class="text-green-600 text-sm mt-1">Hasil analisis antropometri akan muncul di sini setelah form disubmit</p>
     </div>
   `;
 }
 
 // Intersection Observer for fade-in animations
-const observerOptions = {
-  threshold: 0.1,
-  rootMargin: "0px 0px -50px 0px",
-};
-
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
       entry.target.classList.add("visible");
     }
   });
-}, observerOptions);
+}, { threshold: 0.1 });
 
 document.addEventListener("DOMContentLoaded", function () {
+  loadAccountsIntoDropdown(); // Panggil fungsi baru
+  
   const fadeElements = document.querySelectorAll(".fade-in");
   fadeElements.forEach((el) => {
     observer.observe(el);

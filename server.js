@@ -1,21 +1,30 @@
 // Import necessary packages
-const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const dotenv = require('dotenv');
-const cors = require('cors');
+const express = require('express')
+const {GoogleGenerativeAI} = require('@google/generative-ai')
+const dotenv = require('dotenv')
+const cors = require('cors')
 
 // Load environment variables from .env file
 dotenv.config();
 
 // Initialize Express app
 const app = express();
-const port = 3000; // You can use any port
+const port = 5000; // You can use any port
 
 // --- Middleware ---
 // Enable CORS to allow requests from your frontend
 app.use(cors()); 
 // Enable Express to parse JSON in request bodies
 app.use(express.json());
+
+const authRoutes = require('./BACKEND/routes/auth.js');
+const accountsRoutes = require('./BACKEND/routes/accounts_v2.js');
+const antropometriRoutes = require('./BACKEND/routes/antropometri.js'); // <-- TAMBAHKAN INI
+
+app.use('/api/auth', authRoutes);
+// Mount accounts router at /api/accounts so frontend can call /api/accounts
+app.use('/api/accounts', accountsRoutes);
+app.use('/api/antropometri', antropometriRoutes); // <-- TAMBAHKAN INI
 
 // Initialize the Google Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -62,6 +71,8 @@ app.post('/api/generate-recommendation', async (req, res) => {
     res.status(500).json({ error: "Gagal menghasilkan rekomendasi." });
   }
 });
+
+// auth routes already mounted above
 
 // Start the server
 app.listen(port, () => {

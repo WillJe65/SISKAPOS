@@ -1,59 +1,7 @@
-// =================================================================
-// DATA DUMMY (Contoh data yang seharusnya diambil dari database)
-// =================================================================
-const dummyData = {
-  BDI001: {
-    nama: "Budi Santoso",
-    id: "BDI001",
-    umur: "24 bulan",
-    jenisKelamin: "Laki-laki",
-    namaOrangTua: "Herman Santoso",
-    alamat: "Jl. Melati No. 12, Jakarta",
-    nomorHP: "081234567890",
-    riwayat: [
-      { tanggal: "2024-05-10", bb: 12.2, tb: 85.1, status: "Normal" },
-      { tanggal: "2024-06-11", bb: 12.5, tb: 86.0, status: "Normal" },
-      { tanggal: "2024-07-10", bb: 12.8, tb: 87.2, status: "Normal" },
-    ],
-  },
-  STI002: {
-    nama: "Siti Nurhaliza",
-    id: "STI002",
-    umur: "18 bulan",
-    jenisKelamin: "Perempuan",
-    namaOrangTua: "Aisyah",
-    alamat: "Jl. Mawar No. 3, Jakarta",
-    nomorHP: "089876543210",
-    riwayat: [
-      {
-        tanggal: "2024-05-15",
-        bb: 8.0,
-        tb: 74.0,
-        status: "Risiko Stunting",
-      },
-      { tanggal: "2024-06-16", bb: 8.2, tb: 75.1, status: "Stunting" },
-      { tanggal: "2024-07-15", bb: 8.3, tb: 75.5, status: "Stunting" },
-    ],
-  },
-  AHM003: {
-    nama: "Ahmad Rizki",
-    id: "AHM003",
-    umur: "30 bulan",
-    jenisKelamin: "Laki-laki",
-    namaOrangTua: "Muhammad Rizki",
-    alamat: "Jl. Anggrek No. 21, Jakarta",
-    nomorHP: "08111222333",
-    riwayat: [
-      { tanggal: "2024-05-12", bb: 13.0, tb: 90.5, status: "Normal" },
-      { tanggal: "2024-06-14", bb: 13.4, tb: 91.5, status: "Normal" },
-      { tanggal: "2024-07-12", bb: 13.7, tb: 92.3, status: "Normal" },
-    ],
-  },
-};
-
-// =================================================================
-// FUNGSI UTAMA
-// =================================================================
+// admin-tabel.js
+let currentPage = 1;
+const itemsPerPage = 10;
+let currentGenderFilter = "all";
 
 // Fungsi navigasi
 function goBack() {
@@ -62,142 +10,404 @@ function goBack() {
 
 function logout() {
   if (confirm("Apakah Anda yakin ingin logout?")) {
+    localStorage.removeItem('token');
     window.location.href = "dashboard.html";
   }
 }
 
-// --- IMPLEMENTASI BARU UNTUK MODAL ---
+// Fungsi Modal
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
   modal.classList.remove("hidden");
   setTimeout(() => {
-    modal.querySelector(".transform").classList.remove("scale-95", "opacity-0");
-  }, 10); // Sedikit delay untuk transisi
+    const modalBox = modal.querySelector(".transform");
+    if(modalBox) {
+        modalBox.classList.remove("scale-95", "opacity-0");
+    }
+  }, 10);
 }
 
 function closeModal(modalId) {
   const modal = document.getElementById(modalId);
-  modal.querySelector(".transform").classList.add("scale-95", "opacity-0");
+  const modalBox = modal.querySelector(".transform");
+  if(modalBox) {
+    modalBox.classList.add("scale-95", "opacity-0");
+  }
   setTimeout(() => {
     modal.classList.add("hidden");
-  }, 300); // Sesuaikan dengan durasi transisi
+  }, 300);
 }
 
-// Fungsi untuk menampilkan detail
-function viewDetail(id) {
-  const data = dummyData[id];
-  if (!data) return;
+// --- FUNGSI DINAMIS BARU ---
 
-  const contentArea = document.getElementById("detailModalContent");
-  contentArea.innerHTML = `
-      <p><strong>ID:</strong> ${data.id}</p>
-      <p><strong>Nama Lengkap:</strong> ${data.nama}</p>
-      <p><strong>Umur:</strong> ${data.umur}</p>
-      <p><strong>Jenis Kelamin:</strong> ${data.jenisKelamin}</p>
-      <p><strong>Nama Orang Tua:</strong> ${data.namaOrangTua}</p>
-      <p><strong>Alamat:</strong> ${data.alamat}</p>
-      <p><strong>Nomor HP:</strong> ${data.nomorHP}</p>
-    `;
-  openModal("detailModal");
+// Fungsi untuk mengambil detail akun
+async function viewDetail(id) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  try {
+    const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) {
+        if(res.status === 401) window.location.href = 'login.html';
+        throw new Error('Gagal mengambil data');
+    }
+    
+    const data = await res.json();
+    
+    const contentArea = document.getElementById("detailModalContent");
+    contentArea.innerHTML = `
+        <p class="text-sm"><strong class="font-medium text-green-800">Username:</strong> ${data.username || 'N/A'}</p>
+        <p class="text-sm"><strong class="font-medium text-green-800">Nama Lengkap:</strong> ${data.nama_lengkap}</p>
+        <p class="text-sm"><strong class="font-medium text-green-800">Umur (terakhir):</strong> ${data.umur_bulan} bulan</p>
+        <p class="text-sm"><strong class="font-medium text-green-800">Jenis Kelamin:</strong> ${data.jenis_kelamin}</p>
+        <p class="text-sm"><strong class="font-medium text-green-800">Nama Orang Tua:</strong> ${data.nama_orang_tua || '-'}</p>
+        <p class="text-sm"><strong class="font-medium text-green-800">Alamat:</strong> ${data.alamat || '-'}</p>
+        <p class="text-sm"><strong class="font-medium text-green-800">Nomor HP:</strong> ${data.nomor_hp || '-'}</p>
+      `;
+    openModal("detailModal");
+    
+  } catch (err) {
+    console.error(err);
+    alert('Gagal memuat detail akun.');
+  }
 }
 
-// Fungsi untuk menampilkan riwayat
-function viewHistory(id) {
-  const data = dummyData[id];
-  if (!data) return;
+// Fungsi untuk mengambil riwayat pengukuran
+async function viewHistory(id, nama) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
 
   const contentArea = document.getElementById("historyModalContent");
-  let tableHTML = `
+  contentArea.innerHTML = '<p class="text-center">Memuat riwayat...</p>';
+  document.getElementById("historyModalTitle").innerText = `Riwayat Pengukuran - ${nama}`;
+  openModal("historyModal");
+  
+  try {
+    const res = await fetch(`http://localhost:5000/api/accounts/${id}/history`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!res.ok) {
+        if(res.status === 401) window.location.href = 'login.html';
+        throw new Error('Gagal mengambil data riwayat');
+    }
+    
+    const riwayat = await res.json();
+    
+    if (riwayat.length === 0) {
+      contentArea.innerHTML = '<p class="text-center text-green-700">Tidak ada data riwayat untuk anak ini.</p>';
+      return;
+    }
+    
+    let tableHTML = `
+      <div class="overflow-x-auto">
       <table class="w-full text-sm text-left text-green-700">
         <thead class="bg-green-100 text-xs text-green-800 uppercase">
           <tr>
             <th scope="col" class="px-6 py-3">Tanggal Periksa</th>
-            <th scope="col" class="px-6 py-3">Berat Badan (kg)</th>
-            <th scope="col" class="px-6 py-3">Tinggi Badan (cm)</th>
+            <th scope="col" class="px-6 py-3">Umur</th>
+            <th scope="col" class="px-6 py-3">BB (kg)</th>
+            <th scope="col" class="px-6 py-3">TB (cm)</th>
             <th scope="col" class="px-6 py-3">Status Gizi</th>
           </tr>
         </thead>
         <tbody>
     `;
 
-  data.riwayat.forEach((item) => {
-    tableHTML += `
-        <tr class="bg-white border-b border-green-100 hover:bg-green-50">
-          <td class="px-6 py-4 font-medium">${item.tanggal}</td>
-          <td class="px-6 py-4">${item.bb}</td>
-          <td class="px-6 py-4">${item.tb}</td>
-          <td class="px-6 py-4">
-            <span class="px-2 py-1 font-semibold leading-tight rounded-full 
-              ${
-                item.status === "Normal"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-orange-100 text-orange-800"
-              }">
-              ${item.status}
-            </span>
-          </td>
-        </tr>
-      `;
-  });
+    riwayat.forEach((item) => {
+      let statusClass = "bg-gray-100 text-gray-800";
+      const statusGizi = item.status_gizi || 'N/A';
 
-  tableHTML += `</tbody></table>`;
-  contentArea.innerHTML = tableHTML;
-  document.getElementById(
-    "historyModalTitle"
-  ).innerText = `Riwayat Pengukuran - ${data.nama}`;
-  openModal("historyModal");
+      if (statusGizi === "Normal") {
+        statusClass = "bg-green-100 text-green-800";
+      } else if (statusGizi === "Stunting" || statusGizi === "Gizi Buruk" || statusGizi === "Obesitas") {
+        statusClass = "bg-red-100 text-red-800";
+      } else if (statusGizi === "Risiko Stunting" || statusGizi === "Gizi Kurang") {
+        statusClass = "bg-yellow-100 text-yellow-800";
+      } else if (statusGizi === "Gizi Lebih") {
+        statusClass = "bg-orange-100 text-orange-800";
+      }
+
+      tableHTML += `
+          <tr class="bg-white border-b border-green-100 hover:bg-green-50">
+            <td class="px-6 py-4 font-medium">${new Date(item.tanggal_periksa).toLocaleDateString("id-ID")}</td>
+            <td class="px-6 py-4">${item.umur_bulan_saat_periksa} bln</td>
+            <td class="px-6 py-4">${item.berat_badan_kg}</td>
+            <td class="px-6 py-4">${item.tinggi_badan_cm}</td>
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 font-semibold leading-tight rounded-full ${statusClass}">
+                ${statusGizi}
+              </span>
+            </td>
+          </tr>
+        `;
+    });
+
+    tableHTML += `</tbody></table></div>`;
+    contentArea.innerHTML = tableHTML;
+    
+  } catch (err) {
+    console.error(err);
+    contentArea.innerHTML = `<p class="text-center text-red-600">Gagal memuat data riwayat.</p>`;
+  }
 }
 
-// --- FUNGSI FILTER DAN PENCARIAN (Sudah ada dari sebelumnya) ---
-
-let currentGenderFilter = "all";
-
+// Fungsi filter dan pencarian
 function applyFilters() {
-  const searchFilter = document.getElementById("search").value.toLowerCase();
-  const tableRows = document.querySelectorAll("#dataTableBody tr");
-
-  tableRows.forEach((row) => {
-    const nameCell = row.cells[1];
-    const genderCell = row.cells[3];
-
-    const nameMatch = (nameCell.textContent || nameCell.innerText)
-      .toLowerCase()
-      .includes(searchFilter);
-    const genderMatch =
-      currentGenderFilter === "all" ||
-      (genderCell.textContent || genderCell.innerText)
-        .toLowerCase()
-        .includes(currentGenderFilter);
-
-    if (nameMatch && genderMatch) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
+  loadAccounts(1); // Panggil loadAccounts untuk memfilter dari sisi server
 }
 
 function filterData(gender) {
   currentGenderFilter = gender;
-  applyFilters();
+  loadAccounts(1);
 }
 
-// Event listener dan observer
+// Fungsi untuk merender tabel
+function renderTable(data, pagination) {
+  const tableBody = document.getElementById('dataTableBody');
+  tableBody.innerHTML = ''; // Kosongkan tabel
+
+  if (!data || data.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-green-700">Tidak ada data ditemukan.</td></tr>`;
+    return;
+  }
+
+  data.forEach((akun, index) => {
+    const isLaki = akun.jenis_kelamin && akun.jenis_kelamin.toLowerCase().includes('laki');
+    const avatarColor = isLaki ? 'blue' : 'pink';
+    const genderBadgeColor = isLaki ? 'blue' : 'pink';
+    const status = akun.status_gizi || "Belum Ada Data";
+    
+    let statusClass = "bg-gray-100 text-gray-800";
+    if (status === "Normal") {
+      statusClass = "bg-green-100 text-green-800";
+    } else if (status === "Stunting" || status === "Gizi Buruk" || status === "Obesitas") {
+      statusClass = "bg-red-100 text-red-800";
+    } else if (status === "Risiko Stunting" || status === "Gizi Kurang") {
+      statusClass = "bg-yellow-100 text-yellow-800";
+    } else if (status === "Gizi Lebih") {
+      statusClass = "bg-orange-100 text-orange-800";
+    }
+    
+    // Get initials safely
+    const getInitials = (name) => {
+        if (!name) return '??';
+        return name.split(' ')
+                  .map(word => word[0])
+                  .join('')
+                  .substring(0, 2)
+                  .toUpperCase();
+    };
+    const initials = getInitials(akun.nama_lengkap);
+
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-green-50 transition-colors';
+    tr.innerHTML = `
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-green-800">${(pagination.currentPage - 1) * pagination.limit + index + 1}</td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-gradient-to-br from-${avatarColor}-500 to-${avatarColor}-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+            <span class="text-white font-medium">${initials}</span>
+          </div>
+          <div>
+            <div class="text-sm font-medium text-green-900">${akun.nama_lengkap}</div>
+            <div class="text-sm text-green-500">ID: ${akun.username}</div>
+          </div>
+        </div>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${akun.umur_bulan} bulan</td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${genderBadgeColor}-100 text-${genderBadgeColor}-800">${akun.jenis_kelamin}</span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${status}</span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+        <button onclick="viewDetail('${akun.id}')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-xs transition-colors">
+          Detail
+        </button>
+        <button onclick="viewHistory('${akun.id}', '${akun.nama_lengkap.replace(/'/g, "\\'")}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs transition-colors">
+          Riwayat
+        </button>
+      </td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
+
+// Fungsi untuk merender pagination
+function renderPagination(pagination) {
+  const container = document.querySelector('.sm\\:justify-between');
+  if (!container) return;
+
+  // Update text
+  const paginationText = container.querySelector('p');
+  if(paginationText) {
+      if (pagination.totalRecords > 0) {
+        paginationText.innerHTML = `
+            Menampilkan <span class="font-medium">${(pagination.currentPage - 1) * pagination.limit + 1}</span> 
+            sampai <span class="font-medium">${Math.min(pagination.currentPage * pagination.limit, pagination.totalRecords)}</span> 
+            dari <span class="font-medium">${pagination.totalRecords}</span> hasil
+        `;
+      } else {
+         paginationText.innerHTML = `Tidak ada hasil ditemukan.`;
+      }
+  }
+
+  // Update buttons
+  const navContainer = container.querySelector('nav');
+  if (!navContainer) return;
+  
+  const { currentPage, totalPages } = pagination;
+  let buttons = [];
+
+  // Previous button
+  buttons.push(`
+    <button 
+      class="pagination-button relative inline-flex items-center px-2 py-2 rounded-l-md border border-green-300 bg-white text-sm font-medium ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-green-500 hover:bg-green-50'}"
+      ${currentPage === 1 ? 'disabled' : `data-page="${currentPage - 1}"`}
+    >
+      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+    </button>
+  `);
+
+  // Page numbers
+  for (let i = 1; i <= totalPages; i++) {
+    if (
+      i === 1 || // First page
+      i === totalPages || // Last page
+      (i >= currentPage - 1 && i <= currentPage + 1) // Pages around current
+    ) {
+      buttons.push(`
+        <button 
+          class="pagination-button relative inline-flex items-center px-4 py-2 border border-green-300 text-sm font-medium ${i === currentPage ? 'bg-green-600 text-white' : 'bg-white text-green-600 hover:bg-green-50'}"
+          data-page="${i}"
+        >
+          ${i}
+        </button>
+      `);
+    } else if (
+      (i === currentPage - 2 && currentPage > 3) ||
+      (i === currentPage + 2 && currentPage < totalPages - 2)
+    ) {
+      buttons.push(`<span class="relative inline-flex items-center px-4 py-2 border border-green-300 bg-white text-sm font-medium text-green-700">...</span>`);
+    }
+  }
+
+  // Next button
+  buttons.push(`
+    <button 
+      class="pagination-button relative inline-flex items-center px-2 py-2 rounded-r-md border border-green-300 bg-white text-sm font-medium ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-green-500 hover:bg-green-50'}"
+      ${currentPage === totalPages ? 'disabled' : `data-page="${currentPage + 1}"`}
+    >
+      <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+    </button>
+  `);
+  
+  navContainer.innerHTML = buttons.join('');
+  
+  // Add event listeners to new buttons
+  document.querySelectorAll('.pagination-button').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const page = e.currentTarget.dataset.page;
+      if (page) {
+        loadAccounts(parseInt(page));
+      }
+    });
+  });
+}
+
+
+// Fungsi untuk memuat akun dari API
+async function loadAccounts(page = 1) {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  const tableBody = document.getElementById('dataTableBody');
+  tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-green-700">
+    <div class="flex justify-center items-center"><svg class="animate-spin h-5 w-5 mr-3 text-green-500" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+    Memuat data...
+    </div>
+  </td></tr>`;
+
+  const searchFilter = document.getElementById("search").value;
+
+  try {
+    let url = `http://localhost:5000/api/accounts?page=${page}&limit=${itemsPerPage}`;
+    if (searchFilter) {
+      url += `&search=${encodeURIComponent(searchFilter)}`;
+    }
+    if (currentGenderFilter !== 'all') {
+      url += `&gender=${encodeURIComponent(currentGenderFilter)}`;
+    }
+    
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!response.ok) {
+       if(response.status === 401) window.location.href = 'login.html';
+       throw new Error('Gagal memuat data');
+    }
+    
+    const { data, pagination } = await response.json();
+    currentPage = pagination.currentPage;
+    
+    renderTable(data, pagination);
+    renderPagination(pagination);
+
+  } catch (err) {
+    console.error(err);
+    tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-red-600">Gagal memuat data. ${err.message}</td></tr>`;
+  }
+}
+
+// Event listener
 document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("search").addEventListener("keyup", applyFilters);
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
+  // Setup search
+  const searchInput = document.getElementById("search");
+  searchInput.addEventListener("keyup", (e) => {
+    // Re-filter on every keyup for instant feedback
+     applyFilters();
+  });
+  
+  // Setup fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+      }
+    });
+  }, { threshold: 0.1 });
+  
   document.querySelectorAll(".fade-in").forEach((el) => {
     observer.observe(el);
   });
+  
+  // Setup modal close on backdrop click
+  ['detailModal', 'historyModal'].forEach(modalId => {
+      const modal = document.getElementById(modalId);
+      if(modal) {
+          modal.addEventListener('click', function(e) {
+              if (e.target === this) {
+                  closeModal(modalId);
+              }
+          });
+      }
+  });
+
+  // Load data awal
+  loadAccounts(1);
 });

@@ -17,20 +17,19 @@ document
     }
   });
 
-// Form submission handling
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+// === Login handler ===
+document.getElementById("loginForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
   const role = document.getElementById("role").value;
 
-  if (!role) {
-    alert("Silakan pilih peran terlebih dahulu!");
+  if (!username || !password || !role) {
+    alert("Isi semua kolom terlebih dahulu!");
     return;
   }
 
-  // Show loading state
   const submitBtn = document.getElementById("submitBtn");
   const buttonText = document.getElementById("buttonText");
   const loadingSpinner = document.getElementById("loadingSpinner");
@@ -39,22 +38,44 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
   buttonText.textContent = "Memproses...";
   loadingSpinner.classList.remove("hidden");
 
-  // Simulate login process
-  setTimeout(() => {
-    // Reset button state
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, role }),
+    });
+
+    // PERBAIKAN: Pindahkan console.log SETELAH data didefinisikan
+    const data = await res.json();
+    
+    console.log('Response status:', res.status);
+    console.log('Response data:', data); // Sekarang data sudah ada
+
+    if (!res.ok) {
+      alert(data.message || "Login gagal!");
+    } else {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      
+      alert("Login berhasil!");
+      
+      // PERBAIKAN: Gunakan lowercase seperti di backend
+      if (data.user.role === "ADMIN") {
+        window.location.href = "admin_dashboard.html";
+      } else if (data.user.role === "MASYARAKAT") {
+        window.location.href = "masyarakat_dashboard.html";
+      } else {
+        window.location.href = "dashboard.html";
+      }
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("Terjadi kesalahan koneksi ke server. Pastikan backend berjalan di port 5000.");
+  } finally {
     submitBtn.disabled = false;
     buttonText.textContent = "Masuk";
     loadingSpinner.classList.add("hidden");
-
-    // Redirect based on role
-    if (role === "admin") {
-      alert("Selamat datang, Admin! Mengarahkan ke Dashboard Admin...");
-      // window.location.href = 'admin_dashboard.html';
-    } else if (role === "masyarakat") {
-      alert("Selamat datang! Mengarahkan ke Dashboard Masyarakat...");
-      // window.location.href = 'masyarakat_dashboard.html';
-    }
-  }, 1500);
+  }
 });
 
 // Back button functionality
@@ -64,35 +85,3 @@ function handleBackClick() {
 
 // Add smooth scroll behavior
 document.documentElement.style.scrollBehavior = "smooth";
-
-// Enhanced form validation
-const inputs = document.querySelectorAll("input[required], select[required]");
-inputs.forEach((input) => {
-  input.addEventListener("invalid", function (e) {
-    e.preventDefault();
-    this.classList.add("border-red-500", "ring-red-500");
-  });
-
-  input.addEventListener("input", function () {
-    this.classList.remove("border-red-500", "ring-red-500");
-  });
-});
-
-// Auto focus on username field when page loads
-window.addEventListener("load", function () {
-  document.getElementById("username").focus();
-});
-
-document.getElementById("loginForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  let role = document.getElementById("role").value;
-
-  if (role === "admin") {
-    window.location.href = "admin_dashboard.html";
-  } else if (role === "masyarakat") {
-    window.location.href = "masyarakat_dashboard.html";
-  } else {
-    alert("Silakan pilih peran terlebih dahulu!");
-  }
-});
