@@ -1,4 +1,10 @@
 -- =======================================================
+-- INISIALISASI FIRST IF U DONT HAVE A DATABASE
+-- =======================================================
+CREATE DATABASE IF NOT EXISTS siskapos_db;
+USE siskapos_db;
+
+-- =======================================================
 -- DROP TABLES (untuk reset data lama, opsional)
 -- =======================================================
 DROP TABLE IF EXISTS accounts;
