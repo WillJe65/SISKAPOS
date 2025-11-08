@@ -19,10 +19,12 @@ app.use(express.json());
 
 const authRoutes = require('./BACKEND/routes/auth.js');
 const accountsRoutes = require('./BACKEND/routes/accounts_v2.js');
+const antropometriRoutes = require('./BACKEND/routes/antropometri.js'); // <-- TAMBAHKAN INI
 
 app.use('/api/auth', authRoutes);
 // Mount accounts router at /api/accounts so frontend can call /api/accounts
 app.use('/api/accounts', accountsRoutes);
+app.use('/api/antropometri', antropometriRoutes); // <-- TAMBAHKAN INI
 
 // Initialize the Google Generative AI client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
