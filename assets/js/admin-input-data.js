@@ -153,6 +153,7 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
   let rekomendasiAI = "";
 
   try {
+    // 2. Panggil backend API untuk mendapatkan rekomendasi dari Gemini
     const apiResponse = await fetch('http://localhost:5000/api/generate-recommendation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

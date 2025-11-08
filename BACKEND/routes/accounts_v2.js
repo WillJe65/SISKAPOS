@@ -64,40 +64,19 @@ const verifyToken = (req, res, next) => {
 router.get('/', verifyToken, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 100; // Default limit 100
+    const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
-    const gender = req.query.gender || ''; // Filter gender
     
-    console.log('Fetching accounts - Page:', page, 'Limit:', limit, 'Search:', search, 'Gender:', gender);
+    console.log('Fetching accounts - Page:', page, 'Limit:', limit, 'Search:', search);
 
-    // --- MODIFIKASI DIMULAI ---
-    // Query untuk mengambil status gizi terbaru
+    // Base query with JOIN to get user role
     let baseQuery = `
-      SELECT 
-        a.*, 
-        u.role,
-        r_latest.status_gizi
-      FROM 
-        accounts a 
-      LEFT JOIN 
-        users u ON a.username = u.username
-      LEFT JOIN 
-        -- Subquery untuk mengambil HANYA 1 entri riwayat terbaru per akun
-        (
-          SELECT 
-            account_id, 
-            status_gizi,
-            -- Baris ini penting untuk mengurutkan
-            ROW_NUMBER() OVER(PARTITION BY account_id ORDER BY tanggal_periksa DESC, id DESC) as rn
-          FROM 
-            riwayat_antropometri
-        ) r_latest 
-      -- Gabungkan hanya pada entri terbaru (rn = 1)
-      ON a.id = r_latest.account_id AND r_latest.rn = 1
+      SELECT a.*, u.role 
+      FROM accounts a 
+      LEFT JOIN users u ON a.username = u.username
       WHERE 1=1
     `;
-    // --- MODIFIKASI SELESAI ---
     
     // Add search condition if search parameter exists
     const queryParams = [];
@@ -110,44 +89,12 @@ router.get('/', verifyToken, async (req, res) => {
       queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    // --- MODIFIKASI BARU UNTUK GENDER ---
-    if (gender && gender !== 'all') {
-      baseQuery += ` AND a.jenis_kelamin = ?`;
-      queryParams.push(gender); // Asumsi 'Laki-laki' or 'Perempuan'
-    }
-    // --- MODIFIKASI SELESAI ---
-
-
     // Count total records
-    const countQuery = baseQuery
-      .replace('SELECT a.*, u.role, r_latest.status_gizi', 'SELECT COUNT(DISTINCT a.id) as total')
-      .split('ON a.id = r_latest.account_id AND r_latest.rn = 1')[0] + ' WHERE 1=1'; // Simplified count
-      
-    // Re-add search/filter to count query
-    let countParams = [];
-    let countQueryFiltered = `
-      SELECT COUNT(*) as total
-      FROM accounts a
-      WHERE 1=1
-    `;
-    if (search) {
-      countQueryFiltered += ` AND (
-        a.nama_lengkap LIKE ? OR 
-        a.username LIKE ? OR 
-        a.nama_orang_tua LIKE ?
-      )`;
-      countParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
-    }
-     if (gender && gender !== 'all') {
-      countQueryFiltered += ` AND a.jenis_kelamin = ?`;
-      countParams.push(gender);
-    }
-
-    const [countResult] = await query(countQueryFiltered, countParams);
-
+    const countQuery = baseQuery.replace('a.*, u.role', 'COUNT(*) as total');
+    const [countResult] = await query(countQuery, queryParams);
 
     // Get paginated data
-    const dataQuery = baseQuery + ' ORDER BY a.nama_lengkap ASC LIMIT ? OFFSET ?';
+    const dataQuery = baseQuery + ' ORDER BY a.created_at DESC LIMIT ? OFFSET ?';
     queryParams.push(limit, offset);
     const results = await query(dataQuery, queryParams);
 
@@ -167,34 +114,6 @@ router.get('/', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', details: error.message });
   }
 });
-
-// --- RUTE BARU UNTUK RIWAYAT ---
-// Get history for a single account
-router.get('/:id/history', verifyToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    console.log('Fetching history for account ID:', id);
-
-    const history = await query(
-      `SELECT * FROM riwayat_antropometri 
-       WHERE account_id = ? 
-       ORDER BY tanggal_periksa DESC, id DESC`,
-      [id]
-    );
-
-    if (!history) {
-      // query akan return array kosong jika tidak ada, bukan null
-      return res.json([]); // Kembalikan array kosong
-    }
-
-    res.json(history);
-  } catch (error) {
-    console.error('Error fetching account history:', error);
-    res.status(500).json({ message: 'Server error', details: error.message });
-  }
-});
-// --- AKHIR RUTE BARU ---
-
 
 // Get single account
 router.get('/:id', verifyToken, async (req, res) => {
@@ -458,7 +377,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 
     if (!existingAccount) {
       await rollback();
-      return res.status(4404).json({
+      return res.status(404).json({
         success: false,
         message: 'Akun tidak ditemukan'
       });
@@ -475,11 +394,8 @@ router.put('/:id', verifyToken, async (req, res) => {
       id: req.params.id
     });
     
-    // Inisialisasi result di luar try-catch
-    let result; 
     try {
-      // Gunakan [result] untuk mendapatkan objek hasil
-      [result] = await query(
+      const [result] = await query(
         'UPDATE accounts SET nama_lengkap = ?, umur_bulan = ?, jenis_kelamin = ?, nama_orang_tua = ?, alamat = ?, nomor_hp = ? WHERE id = ?',
         [nama_lengkap, umur_bulan, jenisKelaminNormalized, nama_orang_tua, alamat, nomor_hp, req.params.id]
       );
@@ -487,18 +403,22 @@ router.put('/:id', verifyToken, async (req, res) => {
       console.log('Update query result:', result);
       
       if (result.affectedRows === 0) {
-        // Ini bisa terjadi jika datanya sama persis, tidak perlu error
-        console.log('No rows affected, data might be identical.');
+        await rollback();
+        return res.status(404).json({
+          success: false,
+          message: 'Akun tidak ditemukan atau tidak ada perubahan'
+        });
       }
     } catch (error) {
       console.error('Error executing update query:', error);
       await rollback();
-      throw error; // Lemparkan error agar ditangkap oleh catch luar
+      throw error;
     }
 
-    // Password update (jika ada)
-    if (password && password.length > 0) {
-      console.log('Updating password for account ID:', req.params.id);
+    console.log('Update successful:', { affectedRows: result.affectedRows });
+
+    // If password provided, update it
+    if (password) {
       await query(
         `UPDATE users u 
          JOIN accounts a ON u.username = a.username 
@@ -540,7 +460,6 @@ router.put('/:id', verifyToken, async (req, res) => {
     res.status(500).json(errorResponse);
   }
 });
-
 
 // Delete account - SIMPLE VERSION
 router.delete('/:id', verifyToken, async (req, res) => {
@@ -587,17 +506,13 @@ router.delete('/:id', verifyToken, async (req, res) => {
     console.error('Error deleting account:', error);
     
     let errorMessage = 'Gagal menghapus akun';
-    // --- MODIFIKASI: Penanganan error constraint ---
-    // riwayat_antropometri memiliki ON DELETE CASCADE,
-    // jadi error ini seharusnya tidak terjadi jika schema.sql dijalankan
     if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
-      errorMessage = 'Tidak dapat menghapus akun karena masih terdapat data riwayat terkait. Hapus riwayat terlebih dahulu.';
+      errorMessage = 'Tidak dapat menghapus akun karena masih terdapat data terkait';
     }
 
     res.status(500).json({ 
       success: false,
-      message: errorMessage,
-      error: error.message
+      message: errorMessage
     });
   }
 });
