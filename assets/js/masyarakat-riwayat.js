@@ -8,7 +8,7 @@ function logout() {
 }
 
 /* --------------------------
-   Mobile menu toggle (perbaikan)
+   Mobile menu toggle (perbaikan untuk desktop & mobile)
    -------------------------- */
 document.addEventListener("DOMContentLoaded", function () {
   // Cari tombol menu mobile: id utama atau fallback ke attribute data
@@ -48,10 +48,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // safe-ignore
   }
 
-  // Helper: buka menu
+  // Helper: cek apakah sedang di mobile view
+  function isMobileView() {
+    return window.innerWidth < 768; // md breakpoint Tailwind = 768px
+  }
+
+  // Helper: buka menu (hanya untuk mobile)
   function openMenu() {
-    // Pastikan transform utility ada pada elemen (Tailwind); biasanya class 'transform' perlu ada
-    // Kita hapus class yang menyembunyikan dan tambahkan class untuk menampilkan sidebar
+    if (!isMobileView()) return; // Jangan manipulasi di desktop
+
+    // Hapus class yang menyembunyikan dan tambahkan class untuk menampilkan sidebar
     sidebar.classList.remove("hidden", "-translate-x-full");
     // Tambahkan class posisi/animasi agar terlihat sebagai overlay pada mobile
     sidebar.classList.add(
@@ -69,8 +75,10 @@ document.addEventListener("DOMContentLoaded", function () {
     mobileMenuBtn.setAttribute("aria-expanded", "true");
   }
 
-  // Helper: tutup menu
+  // Helper: tutup menu (hanya untuk mobile)
   function closeMenu() {
+    if (!isMobileView()) return; // Jangan manipulasi di desktop
+
     // Sembunyikan kembali sidebar
     sidebar.classList.add("hidden", "-translate-x-full");
     sidebar.classList.remove(
@@ -87,23 +95,63 @@ document.addEventListener("DOMContentLoaded", function () {
     mobileMenuBtn.setAttribute("aria-expanded", "false");
   }
 
+  // Helper: reset sidebar state berdasarkan ukuran layar
+  function resetSidebarState() {
+    if (isMobileView()) {
+      // Mode mobile: sidebar hidden by default
+      sidebar.classList.add("hidden", "-translate-x-full", "transform");
+      sidebar.classList.remove(
+        "translate-x-0",
+        "fixed",
+        "top-0",
+        "left-0",
+        "h-full",
+        "z-30"
+      );
+      document.documentElement.classList.remove("overflow-hidden");
+      mobileMenuBtn.setAttribute("aria-expanded", "false");
+    } else {
+      // Mode desktop: sidebar visible, hapus semua class mobile
+      sidebar.classList.remove(
+        "hidden",
+        "-translate-x-full",
+        "translate-x-0",
+        "transform",
+        "fixed",
+        "top-0",
+        "left-0",
+        "h-full",
+        "z-30"
+      );
+      document.documentElement.classList.remove("overflow-hidden");
+      mobileMenuBtn.setAttribute("aria-expanded", "false");
+    }
+  }
+
   // Inisialisasi state: jika sidebar belum punya id, beri id agar aria-controls konsisten
   if (!sidebar.id) {
     sidebar.id = "mobile-sidebar";
     mobileMenuBtn.setAttribute("aria-controls", sidebar.id);
   }
 
-  // Jika sidebar awalnya tidak punya kelas transform/translate, tambahkan untuk konsistensi
-  // Ini memastikan behaviour predictable: default hidden di mobile menggunakan '-translate-x-full hidden'
-  if (!sidebar.classList.contains("transform")) {
-    // Jangan override layout desktop: keep md:block jika ada
-    // Tambahkan transform dan -translate-x-full serta hidden (jika belum ada)
-    sidebar.classList.add("transform", "-translate-x-full", "hidden");
-  }
+  // Set initial state berdasarkan ukuran layar saat load
+  resetSidebarState();
 
-  // Event: klik tombol toggle
+  // Event: resize window - reset state sidebar
+  let resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      resetSidebarState();
+    }, 250); // Debounce 250ms
+  });
+
+  // Event: klik tombol toggle (hanya aktif di mobile)
   mobileMenuBtn.addEventListener("click", function (e) {
     e.stopPropagation();
+
+    if (!isMobileView()) return; // Ignore di desktop
+
     const isHidden =
       sidebar.classList.contains("hidden") ||
       sidebar.classList.contains("-translate-x-full");
@@ -114,8 +162,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Event: klik di luar sidebar akan menutup menu (UX)
+  // Event: klik di luar sidebar akan menutup menu (UX mobile only)
   document.addEventListener("click", function (e) {
+    if (!isMobileView()) return; // Ignore di desktop
+
     if (!sidebar.classList.contains("hidden")) {
       if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
         closeMenu();
@@ -123,8 +173,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Event: tombol Escape menutup menu
+  // Event: tombol Escape menutup menu (mobile only)
   document.addEventListener("keydown", function (e) {
+    if (!isMobileView()) return; // Ignore di desktop
+
     if (e.key === "Escape" || e.key === "Esc") {
       if (!sidebar.classList.contains("hidden")) {
         closeMenu();
@@ -132,35 +184,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Jika ada link di sidebar, menutup menu setelah klik (UX mobile)
+  // Jika ada link di sidebar, menutup menu setelah klik (UX mobile only)
   const sidebarLinks = sidebar.querySelectorAll("a");
   sidebarLinks.forEach((link) => {
     link.addEventListener("click", () => {
       // Tutup menu setelah navigasi (berguna di mobile)
-      closeMenu();
+      if (isMobileView()) {
+        closeMenu();
+      }
     });
-  });
-});
-
-// Intersection Observer for fade-in animations
-const observerOptions = {
-  threshold: 0.1,
-  rootMargin: "0px 0px -50px 0px",
-};
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("visible");
-    }
-  });
-}, observerOptions);
-
-// Observe all fade-in elements
-document.addEventListener("DOMContentLoaded", function () {
-  const fadeElements = document.querySelectorAll(".fade-in");
-  fadeElements.forEach((el) => {
-    observer.observe(el);
   });
 });
 
