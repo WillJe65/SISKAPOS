@@ -4,7 +4,7 @@ function goBack() {
 }
 
 function logout() {
-  window.location.href = "beranda_umum.html";
+  window.location.href = "login.html";
 }
 
 /* --------------------------

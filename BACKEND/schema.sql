@@ -9,6 +9,7 @@ USE siskapos_db;
 -- =======================================================
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS riwayat_antropometri;
 
 -- =======================================================
 -- CREATE TABLE: USERS
@@ -38,6 +39,28 @@ CREATE TABLE accounts (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+-- =======================================================
+-- CREATE TABLE: RIWAYAT ANTROPOMETRI
+-- =======================================================
+CREATE TABLE IF NOT EXISTS riwayat_antropometri (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  account_id INT NOT NULL,
+  tanggal_periksa DATE NOT NULL DEFAULT (CURRENT_DATE),
+  umur_bulan_saat_periksa INT NOT NULL,
+  berat_badan_kg DECIMAL(5, 2) NOT NULL,
+  tinggi_badan_cm DECIMAL(5, 2) NOT NULL,
+  lingkar_kepala_cm DECIMAL(5, 2),
+  bmi DECIMAL(4, 1),
+  status_gizi VARCHAR(50),
+  rekomendasi_ai TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (account_id) REFERENCES accounts(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
 
 -- =======================================================
 -- TRIGGER: AUTO INSERT INTO USERS WHEN NEW ACCOUNT ADDED
