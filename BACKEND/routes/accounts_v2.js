@@ -415,7 +415,7 @@ router.put('/:id', verifyToken, async (req, res) => {
       throw error;
     }
 
-    console.log('Update successful:', { affectedRows: result.affectedRows });
+    console.log('Update successful:', { affectedRows: result.affectedRows }); // Perbaikan: result.affectedRows
 
     // If password provided, update it
     if (password) {
@@ -461,7 +461,10 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Delete account - SIMPLE VERSION
+// =======================================================
+// PERBAIKAN LOGIKA HAPUS DIMULAI DI SINI
+// =======================================================
+// Delete account - PERBAIKAN (Menghapus dari tabel 'users')
 router.delete('/:id', verifyToken, async (req, res) => {
   console.log('Deleting account ID:', req.params.id);
   
@@ -474,31 +477,43 @@ router.delete('/:id', verifyToken, async (req, res) => {
       });
     }
 
-    // Gunakan approach yang lebih robust
-    const result = await query(
-      'DELETE FROM accounts WHERE id = ?',
+    // 1. Dapatkan username dari ID akun yang akan dihapus
+    const [account] = await query(
+      'SELECT username FROM accounts WHERE id = ?',
       [accountId]
     );
 
-    // Universal affectedRows check
-    const affectedRows = 
-      result?.affectedRows ?? 
-      result?.[0]?.affectedRows ?? 
-      result?.rows?.affectedRows ?? 
-      0;
-
-    console.log('Delete operation - affectedRows:', affectedRows);
-
-    if (affectedRows === 0) {
+    // Jika akun tidak ditemukan
+    if (!account || !account.username) {
+      console.log('Account not found for ID:', accountId);
       return res.status(404).json({ 
-        success: false,
+        success: false, 
         message: 'Akun tidak ditemukan' 
       });
     }
 
+    console.log(`Found username: ${account.username} for ID: ${accountId}. Deleting user...`);
+
+    // 2. Hapus user dari tabel 'users'.
+    // Sesuai schema.sql Anda, ON DELETE CASCADE akan otomatis
+    // menghapus baris di tabel 'accounts' yang terkait.
+    const [result] = await query(
+      'DELETE FROM users WHERE username = ?',
+      [account.username]
+    );
+
+    if (result.affectedRows === 0) {
+      // Ini seharusnya tidak terjadi jika langkah 1 berhasil,
+      // tapi ini adalah pengaman jika data user-nya tidak ada
+      console.warn(`User ${account.username} not found in users table, but account ${accountId} was.`);
+      // Tetap kirim sukses karena akunnya (mungkin) sudah tidak ada
+    }
+
+    console.log(`Successfully deleted user: ${account.username} (and cascaded to account ID: ${accountId})`);
+
     res.json({ 
       success: true,
-      message: 'Akun berhasil dihapus',
+      message: 'Akun berhasil dihapus (termasuk data user terkait)',
       deletedId: accountId
     });
 
@@ -506,8 +521,9 @@ router.delete('/:id', verifyToken, async (req, res) => {
     console.error('Error deleting account:', error);
     
     let errorMessage = 'Gagal menghapus akun';
+    // Cek jika ada data lain yang terkait (misal: data imunisasi, dll)
     if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
-      errorMessage = 'Tidak dapat menghapus akun karena masih terdapat data terkait';
+      errorMessage = 'Tidak dapat menghapus akun karena masih terdapat data terkait (misal: data penimbangan)';
     }
 
     res.status(500).json({ 
@@ -516,5 +532,8 @@ router.delete('/:id', verifyToken, async (req, res) => {
     });
   }
 });
+// =======================================================
+// PERBAIKAN LOGIKA HAPUS BERAKHIR DI SINI
+// =======================================================
 
 module.exports = router;

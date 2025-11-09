@@ -1,5 +1,6 @@
 // admin-edit-akun.js
 let currentGenderFilter = "all"; // Menyimpan filter gender yang aktif
+let currentSearch = ""; // <-- PERUBAHAN: Menyimpan query pencarian
 let editingId = null; // Menyimpan ID yang sedang diedit
 let debug = true; // Enable debug logging
 
@@ -341,35 +342,42 @@ showNotification(
 });
   
 
+// =======================================================
+// PERBAIKAN LOGIKA FILTER DIMULAI DI SINI
+// =======================================================
 // Fungsi untuk filter dan pencarian
 function applyFilters() {
-  const searchFilter = document.getElementById("search").value.toLowerCase();
+  // Logika search dihapus dari sini, karena sudah ditangani backend
   const tableBody = document.getElementById("accountTableBody");
   const tableRows = tableBody.getElementsByTagName("tr");
 
   for (const row of tableRows) {
-    const nameCell = row.getElementsByTagName("td")[1];
-    const genderCell = row.getElementsByTagName("td")[3];
+    const genderCell = row.getElementsByTagName("td")[3]; // Asumsi kolom ke-4
 
-    if (nameCell && genderCell) {
-      const nameText = (nameCell.textContent || nameCell.innerText).toLowerCase();
+    if (genderCell) {
       const genderText = (genderCell.textContent || genderCell.innerText)
         .trim()
         .toLowerCase();
 
-      const nameMatch = nameText.includes(searchFilter);
+      // Pencocokan HANYA berdasarkan filter gender
       const genderMatch =
         currentGenderFilter === "all" || genderText === currentGenderFilter;
 
-      row.style.display = (nameMatch && genderMatch) ? "" : "none";
+      row.style.display = (genderMatch) ? "" : "none";
     }
   }
 }
 
 function filterData(gender) {
   currentGenderFilter = gender;
+  // Panggil applyFilters, BUKAN loadAccounts
+  // karena kita hanya ingin memfilter data yang sudah ada di halaman
   applyFilters();
 }
+// =======================================================
+// PERBAIKAN LOGIKA FILTER BERAKHIR DI SINI
+// =======================================================
+
 
 // Fungsi untuk merender tabel dengan data dinamis
 function renderAccountTable(data) {
@@ -389,6 +397,7 @@ function renderAccountTable(data) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.47-.88-6.09-2.32M3 12h.01M21 12h.01"></path>
             </svg>
             <p class="text-lg font-medium">Tidak ada data akun yang ditemukan</p>
+            <p class="text-sm text-gray-500">Coba ubah kata kunci pencarian Anda.</p>
           </div>
         </td>
       </tr>
@@ -604,14 +613,14 @@ function setupSelectAllCheckbox() {
 let currentPage = 1;
 const itemsPerPage = 10;
 
-// Load and render accounts with pagination
-// Load and render accounts with pagination
+// =======================================================
+// PERBAIKAN LOGIKA LOAD DATA DIMULAI DI SINI
+// =======================================================
 async function loadAccounts(page = 1) {
   const tableBody = document.getElementById('accountTableBody');
   
   if (debug) {
-    console.log('Loading accounts page:', page);
-    console.log('Current URL:', window.location.href);
+    console.log(`Loading accounts - Page: ${page}, Search: '${currentSearch}'`);
   }
 
   try {
@@ -624,7 +633,6 @@ async function loadAccounts(page = 1) {
 
     if (debug) {
       console.log('Using token:', token.substring(0, 10) + '...');
-      console.log('API URL:', `http://localhost:5000/api/accounts?page=${page}&limit=${itemsPerPage}`);
     }
 
     // Show loading state
@@ -641,9 +649,12 @@ async function loadAccounts(page = 1) {
     
     tableBody.innerHTML = loadingHtml;
     
-    if (debug) console.log('Making API request...');
+    // PERUBAHAN: Tambahkan parameter 'search' ke URL
+    const apiUrl = `http://localhost:5000/api/accounts?page=${page}&limit=${itemsPerPage}&search=${encodeURIComponent(currentSearch)}`;
     
-    const response = await fetch(`http://localhost:5000/api/accounts?page=${page}&limit=${itemsPerPage}`, {
+    if (debug) console.log('Making API request to:', apiUrl);
+    
+    const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -707,7 +718,7 @@ async function loadAccounts(page = 1) {
     // Render pagination controls
     renderPagination(pagination);
     
-    // Re-apply any active filters
+    // PERUBAHAN: Terapkan filter GENDER ke data yang baru dimuat
     applyFilters();
 
   } catch (err) {
@@ -730,6 +741,10 @@ async function loadAccounts(page = 1) {
   }
 
 }
+// =======================================================
+// PERBAIKAN LOGIKA LOAD DATA BERAKHIR DI SINI
+// =======================================================
+
 
 // Fungsi untuk menampilkan notifikasi
 function showNotification(message, type = 'info') {
@@ -783,14 +798,31 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
+  // =======================================================
+  // PERBAIKAN EVENT LISTENER SEARCH DIMULAI DI SINI
+  // =======================================================
   // Set up search listener
   const searchInput = document.getElementById("search");
   if (searchInput) {
     if (debug) console.log('Setting up search input handler');
-    searchInput.addEventListener("keyup", applyFilters);
+    
+    // HAPUS listener 'keyup' yang lama
+    // searchInput.addEventListener("keyup", applyFilters);
+    
+    // GANTI DENGAN listener 'change'
+    searchInput.addEventListener("change", function () {
+      // Event 'change' akan aktif saat user tekan Enter atau klik di luar
+      currentSearch = searchInput.value.trim(); // Simpan query pencarian
+      loadAccounts(1); // Muat ulang data dari halaman 1
+    });
+
   } else {
     console.error('Search input element not found');
   }
+  // =======================================================
+  // PERBAIKAN EVENT LISTENER SEARCH BERAKHIR DI SINI
+  // =======================================================
+
 
   // Set up select all checkbox
   const selectAllCheckbox = document.getElementById("selectAll");
@@ -842,7 +874,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       try {
         const token = getAuthToken();
         if (!token) return;
-        const res = await fetch(`http://localhost:5000/api/accounts?page=1&limit=${itemsPerPage}`, {
+        
+        // PERUBAHAN: Polling juga harus menggunakan query pencarian saat ini
+        const pollUrl = `http://localhost:5000/api/accounts?page=${currentPage}&limit=${itemsPerPage}&search=${encodeURIComponent(currentSearch)}`;
+        
+        const res = await fetch(pollUrl, {
           headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         });
         if (!res.ok) return; // ignore errors here
