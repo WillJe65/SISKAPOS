@@ -56,6 +56,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     } else {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("userId", data.user.id);
       
       alert("Login berhasil!");
       
