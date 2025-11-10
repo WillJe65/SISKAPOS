@@ -1,0 +1,17 @@
+Jalankan terminal difolder SISKAPOS, yg bagian smua ini sekali aj:
+npm init -y
+
+npm install express cors dotenv @google/generative-ai
+
+---------------------------------------------------------------------
+jalanin terminal difolder SISKAPOS klo mau cek ainy:
+
+node server.js
+
+kalau tulisan:
+
+Server is running on http://localhost:3000
+
+biarkan terminalnya terbuka!
+
+jalankannya dengan membuka admin/masyarakat_input_data.html langsung dari file explorer.

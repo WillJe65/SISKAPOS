@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Input Data Anak - Posyandu Melati 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css" />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#10b981",
+              "primary-foreground": "#ffffff",
+              input: "#e5e7eb",
+              ring: "#10b981",
+              "muted-foreground": "#6b7280",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-gradient-posyandu">
+    <!-- Navigation Header -->
+    <header
+      class="w-full bg-white/90 backdrop-blur-sm border-b border-green-100 sticky top-0 z-50 shadow-sm"
+    >
+      <div class="px-6 py-4 flex items-center justify-between">
+        <!-- Logo and Brand -->
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"
+          >
+            <svg
+              class="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              ></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold text-green-800">
+              Input Data Antropometri
+            </h1>
+            <p class="text-sm text-green-600 hidden md:block">
+              Posyandu Melati 1
+            </p>
+          </div>
+        </div>
+
+        <!-- Navigation Actions -->
+        <div class="flex items-center gap-4">
+          <button
+            onclick="goBack()"
+            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 md:px-6 md:py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          >
+            <div class="flex items-center gap-2">
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+              <span class="hidden md:block">Kembali</span>
+            </div>
+          </button>
+          <button
+            onclick="logout()"
+            class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 md:px-6 md:py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          >
+            <div class="flex items-center gap-2">
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                ></path>
+              </svg>
+              <span class="hidden md:block">Logout</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        class="w-64 bg-white/80 backdrop-blur-sm border-r border-green-100 shadow-lg hidden lg:block"
+      >
+        <div class="p-6">
+          <nav class="space-y-2">
+            <a
+              href="masyarakat_dashboard.html"
+              class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-green-700 hover:text-green-800"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                ></path>
+              </svg>
+              Beranda
+            </a>
+            <a
+              href="masyarakat_input_data.html"
+              class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-lg font-medium"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                ></path>
+              </svg>
+              Input Data Antropometri
+            </a>
+            <a
+              href="masyarakat_riwayat.html"
+              class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-green-700 hover:text-green-800"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                ></path>
+              </svg>
+              Riwayat Antropometri
+            </a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-btn"
+        class="lg:hidden fixed top-20 left-4 z-40 bg-green-600 text-white p-2 rounded-lg shadow-lg"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          ></path>
+        </svg>
+      </button>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-4 lg:p-8">
+        <!-- Title Section -->
+        <div class="mb-8 fade-in">
+          <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-2">
+            Input Data Anak Anda
+          </h2>
+          <p class="text-green-600 text-lg">
+            Masukkan data antropometri anak untuk memantau pertumbuhan
+          </p>
+        </div>
+
+        <!-- Form Section -->
+        <div class="max-w-2xl mx-auto">
+          <div
+            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-8 shadow-lg fade-in"
+          >
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold text-green-800">Form Data Anak</h3>
+            </div>
+
+            <form id="dataForm" class="space-y-6">
+              <!-- Nama Anak -->
+              <div class="space-y-2">
+                <label
+                  for="namaAnak"
+                  class="block text-sm font-semibold text-green-800"
+                >
+                  Nama Anak
+                </label>
+                <input
+                  type="text"
+                  id="namaAnak"
+                  placeholder="Masukkan nama anak"
+                  required
+                  class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                />
+              </div>
+
+              <!-- Umur -->
+              <div class="space-y-2">
+                <label
+                  for="umur"
+                  class="block text-sm font-semibold text-green-800"
+                >
+                  Umur (bulan)
+                </label>
+                <input
+                  type="number"
+                  id="umur"
+                  placeholder="Masukkan umur dalam bulan"
+                  required
+                  min="0"
+                  max="60"
+                  class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                />
+              </div>
+
+              <!-- Jenis Kelamin -->
+              <div class="space-y-2">
+                <label
+                  for="jenisKelamin"
+                  class="block text-sm font-semibold text-green-800"
+                >
+                  Jenis Kelamin
+                </label>
+                <select
+                  id="jenisKelamin"
+                  required
+                  class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800"
+                >
+                  <option value="">-- Pilih Jenis Kelamin --</option>
+                  <option value="laki-laki">Laki-laki</option>
+                  <option value="perempuan">Perempuan</option>
+                </select>
+              </div>
+
+              <!-- Grid for measurements -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Berat Badan -->
+                <div class="space-y-2">
+                  <label
+                    for="beratBadan"
+                    class="block text-sm font-semibold text-green-800"
+                  >
+                    Berat Badan (kg)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    id="beratBadan"
+                    placeholder="12.5"
+                    required
+                    min="1"
+                    max="50"
+                    class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                  />
+                </div>
+
+                <!-- Tinggi Badan -->
+                <div class="space-y-2">
+                  <label
+                    for="tinggiBadan"
+                    class="block text-sm font-semibold text-green-800"
+                  >
+                    Tinggi Badan (cm)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    id="tinggiBadan"
+                    placeholder="85.0"
+                    required
+                    min="40"
+                    max="150"
+                    class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                  />
+                </div>
+
+                <!-- Lingkar Kepala -->
+                <div class="space-y-2">
+                  <label
+                    for="lingkarKepala"
+                    class="block text-sm font-semibold text-green-800"
+                  >
+                    Lingkar Kepala (cm)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    id="lingkarKepala"
+                    placeholder="48.5"
+                    required
+                    min="30"
+                    max="60"
+                    class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                  />
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="pt-4">
+                <button
+                  type="submit"
+                  id="submitBtn"
+                  class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    ></path>
+                  </svg>
+                  Hitung & Lihat Hasil Analisis
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Results Section -->
+          <div
+            id="hasilAnalisis"
+            class="mt-8 card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-8 shadow-lg fade-in hidden"
+          >
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-2xl font-bold text-green-800">
+                Hasil Analisis Antropometri
+              </h3>
+            </div>
+
+            <div id="hasilContent" class="space-y-4">
+              <div
+                class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6"
+              >
+                <h4 class="font-semibold text-green-800 mb-2">Status Gizi</h4>
+                <p class="text-green-700">
+                  Hasil analisis akan muncul di sini setelah Anda mengisi form
+                  dan menekan tombol analisis.
+                </p>
+              </div>
+
+              <div
+                class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6"
+              >
+                <h4 class="font-semibold text-blue-800 mb-2">Rekomendasi</h4>
+                <p class="text-blue-700">
+                  Saran dan rekomendasi akan ditampilkan berdasarkan hasil
+                  analisis data antropometri anak Anda.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-green-800 text-white py-8 mt-12">
+      <div class="container mx-auto px-4 max-w-7xl text-center">
+        <p>&copy; 2025 Posyandu Melati 1 - Kelompok 3 Kapita Selekta ITERA</p>
+      </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/masyarakat-input-data.js"></script>
+  </body>
+</html>

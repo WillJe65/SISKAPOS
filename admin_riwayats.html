@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Riwayat Antropometri - Posyandu Melati 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css" />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#10b981",
+              "primary-foreground": "#ffffff",
+              input: "#e5e7eb",
+              ring: "#10b981",
+              "muted-foreground": "#6b7280",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-gradient-posyandu">
+    <!-- Navigation Header -->
+    <header
+      class="w-full bg-white/90 backdrop-blur-sm border-b border-green-100 sticky top-0 z-50 shadow-sm"
+    >
+      <div class="px-6 py-4 flex items-center justify-between">
+        <!-- Logo and Brand -->
+        <div class="flex items-center gap-3">
+          <button
+            onclick="goBack()"
+            class="lg:hidden bg-green-600 text-white p-2 rounded-lg shadow-lg mr-2"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
+            </svg>
+          </button>
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"
+          >
+            <svg
+              class="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              ></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold text-green-800">
+              Riwayat Antropometri
+            </h1>
+            <p class="text-sm text-green-600 hidden md:block">
+              Posyandu Melati 1
+            </p>
+          </div>
+        </div>
+
+        <!-- Navigation Actions -->
+        <div class="flex items-center gap-4">
+          <button
+            onclick="goBack()"
+            class="hidden lg:flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-all duration-200"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              ></path>
+            </svg>
+            Kembali
+          </button>
+          <button
+            onclick="logout()"
+            class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 md:px-6 md:py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          >
+            <div class="flex items-center gap-2">
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                ></path>
+              </svg>
+              <span class="hidden md:block">Logout</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        class="w-64 bg-white/80 backdrop-blur-sm border-r border-green-100 shadow-lg hidden lg:block"
+      >
+        <div class="p-6">
+          <nav class="space-y-2">
+            <a
+              href="admin_dashboard.html"
+              class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-green-700 hover:text-green-800"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                ></path>
+              </svg>
+              Beranda
+            </a>
+            <a
+              href="admin_tabel.html"
+              class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-green-700 hover:text-green-800"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                ></path>
+              </svg>
+              Tabel Data Akun
+            </a>
+            <a
+              href="admin_input_data.html"
+              class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-green-700 hover:text-green-800"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                ></path>
+              </svg>
+              Input Data Antropometri
+            </a>
+            <a
+              href="admin_edit_akun.html"
+              class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-green-700 hover:text-green-800"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                ></path>
+              </svg>
+              Edit Data Akun
+            </a>
+            <a
+              href="admin_jadwal.html"
+              class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-green-700 hover:text-green-800"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                ></path>
+              </svg>
+              Jadwal Posyandu
+            </a>
+            <a
+              href="admin_riwayats.html"
+              class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-lg font-medium"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                ></path>
+              </svg>
+              Riwayat Antropometri
+            </a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-4 lg:p-8">
+        <!-- Page Header -->
+        <div class="mb-8 fade-in">
+          <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-2">
+            Riwayat Antropometri
+          </h2>
+          <p class="text-green-600 text-lg">
+            Data riwayat pengukuran antropometri anak
+          </p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div
+            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-green-600 text-sm font-medium">
+                  Total Riwayat
+                </p>
+                <p class="text-3xl font-bold text-green-800" id="totalRiwayats">0</p>
+              </div>
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-orange-600 text-sm font-medium">
+                  Riwayat Bulan Ini
+                </p>
+                <p class="text-3xl font-bold text-orange-800" id="monthlyRiwayats">0</p>
+              </div>
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-green-600 text-sm font-medium">
+                  Rata-rata Berat Badan
+                </p>
+                <p class="text-3xl font-bold text-green-800" id="avgWeight">0</p>
+              </div>
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mb-6 flex flex-col sm:flex-row gap-4 fade-in">
+          <button
+            onclick="openRiwayatModal()"
+            class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              ></path>
+            </svg>
+            Tambah Riwayat Baru
+          </button>
+
+          <button
+            onclick="exportRiwayats()"
+            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              ></path>
+            </svg>
+            Export Data
+          </button>
+        </div>
+
+        <!-- Riwayats Table -->
+        <div
+          class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl shadow-lg fade-in overflow-hidden"
+        >
+          <div
+            class="px-6 py-4 border-b border-green-100 flex items-center justify-between"
+          >
+            <div>
+              <h3 class="text-xl font-bold text-green-800">
+                Daftar Riwayat Antropometri
+              </h3>
+              <p class="text-green-600 text-sm">
+                Data pengukuran antropometri anak
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                id="searchRiwayats"
+                placeholder="Cari riwayat..."
+                class="px-4 py-2 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-green-50">
+                <tr>
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
+                  >
+                    Tanggal
+                  </th>
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
+                  >
+                    Berat Badan (g)
+                  </th>
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
+                  >
+                    Tinggi Badan (mm)
+                  </th>
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
+                  >
+                    Lingkar Kepala (mm)
+                  </th>
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
+                  >
+                    Lingkar Lengan (mm)
+                  </th>
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
+                  >
+                    Lingkar Badan (mm)
+                  </th>
+                  <th
+                    class="px-6 py-4 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
+                  >
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                class="bg-white divide-y divide-green-100"
+                id="riwayatsTableBody"
+              >
+                <!-- Data will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal untuk Tambah/Edit Riwayat -->
+    <div
+      id="riwayatModal"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+      >
+        <div class="flex items-center justify-between mb-6">
+          <h3 id="riwayatModalTitle" class="text-xl font-bold text-green-800">
+            Tambah Riwayat Baru
+          </h3>
+          <button
+            onclick="closeRiwayatModal()"
+            class="text-gray-400 hover:text-gray-600"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <form id="riwayatForm" class="space-y-4">
+          <div>
+            <label
+              for="beratBadan"
+              class="block text-sm font-medium text-green-700 mb-2"
+              >Berat Badan (gram)</label
+            >
+            <input
+              type="number"
+              id="beratBadan"
+              required
+              min="0"
+              step="1"
+              placeholder="Contoh: 12500"
+              class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          <div>
+            <label
+              for="tinggiBadan"
+              class="block text-sm font-medium text-green-700 mb-2"
+              >Tinggi Badan (mm)</label
+            >
+            <input
+              type="number"
+              id="tinggiBadan"
+              required
+              min="0"
+              step="1"
+              placeholder="Contoh: 850"
+              class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          <div>
+            <label
+              for="lingkarKepala"
+              class="block text-sm font-medium text-green-700 mb-2"
+              >Lingkar Kepala (mm)</label
+            >
+            <input
+              type="number"
+              id="lingkarKepala"
+              min="0"
+              step="1"
+              placeholder="Opsional"
+              class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          <div>
+            <label
+              for="lingkarLengan"
+              class="block text-sm font-medium text-green-700 mb-2"
+              >Lingkar Lengan (mm)</label
+            >
+            <input
+              type="number"
+              id="lingkarLengan"
+              min="0"
+              step="1"
+              placeholder="Opsional"
+              class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          <div>
+            <label
+              for="lingkarBadan"
+              class="block text-sm font-medium text-green-700 mb-2"
+              >Lingkar Badan (mm)</label
+            >
+            <input
+              type="number"
+              id="lingkarBadan"
+              min="0"
+              step="1"
+              placeholder="Opsional"
+              class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          <div class="flex gap-4 pt-4">
+            <button
+              type="submit"
+              class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+            >
+              Simpan Riwayat
+            </button>
+            <button
+              type="button"
+              onclick="closeRiwayatModal()"
+              class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+            >
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-green-800 text-white py-8 mt-12">
+      <div class="container mx-auto px-4 max-w-7xl text-center">
+        <p>&copy; 2025 Posyandu Melati 1 - Kelompok 3 Kapita Selekta ITERA</p>
+      </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/admin-riwayats.js"></script>
+  </body>
+</html>
