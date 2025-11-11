@@ -1,4 +1,5 @@
 const express = require('express')
+import serverless from "serverless-http"
 const {GoogleGenerativeAI} = require('@google/generative-ai')
 const dotenv = require('dotenv')
 const cors = require('cors')
@@ -64,6 +65,4 @@ app.post('/api/generate-recommendation', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+export default serverless(app)
