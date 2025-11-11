@@ -45,11 +45,10 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       body: JSON.stringify({ username, password, role }),
     });
 
-    // PERBAIKAN: Pindahkan console.log SETELAH data didefinisikan
     const data = await res.json();
     
     console.log('Response status:', res.status);
-    console.log('Response data:', data); // Sekarang data sudah ada
+    console.log('Response data:', data);
 
     if (!res.ok) {
       alert(data.message || "Login gagal!");
@@ -60,7 +59,6 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       
       alert("Login berhasil!");
       
-      // PERBAIKAN: Gunakan lowercase seperti di backend
       if (data.user.role === "ADMIN") {
         window.location.href = "admin_dashboard.html";
       } else if (data.user.role === "MASYARAKAT") {
@@ -84,5 +82,5 @@ function handleBackClick() {
   window.location.href = "dashboard.html";
 }
 
-// Add smooth scroll behavior
+//smooth scroll
 document.documentElement.style.scrollBehavior = "smooth";

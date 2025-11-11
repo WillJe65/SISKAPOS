@@ -60,8 +60,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Get all accounts with pagination and search
-// --- MODIFIKASI DIMULAI: Menambahkan JOIN untuk status gizi & filter gender ---
+// Get all accounts with pagination, search, and filter
 router.get('/', verifyToken, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -94,7 +93,6 @@ router.get('/', verifyToken, async (req, res) => {
       ON a.id = r_latest.account_id AND r_latest.rn = 1
       WHERE 1=1
     `;
-    // --- MODIFIKASI SELESAI ---
     
     const queryParams = [];
     if (search) {
@@ -106,14 +104,11 @@ router.get('/', verifyToken, async (req, res) => {
       queryParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
-    // --- MODIFIKASI BARU UNTUK GENDER ---
     if (gender && gender !== 'all') {
       baseQuery += ` AND a.jenis_kelamin = ?`;
-      // Frontend mengirim 'laki-laki' atau 'perempuan', jadi kita normalisasi
       const normalizedGender = gender.toLowerCase() === 'laki-laki' ? 'Laki-laki' : 'Perempuan';
       queryParams.push(normalizedGender);
     }
-    // --- MODIFIKASI SELESAI ---
 
     // Count total records
     let countQueryFiltered = `
@@ -160,7 +155,6 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-// --- RUTE BARU DITAMBAHKAN: Untuk mengambil riwayat ---
 // Get history for a single account
 router.get('/:id/history', verifyToken, async (req, res) => {
   try {
@@ -180,7 +174,6 @@ router.get('/:id/history', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error', details: error.message });
   }
 });
-// --- AKHIR RUTE BARU ---
 
 
 // Get single account
@@ -447,15 +440,13 @@ router.put('/:id', verifyToken, async (req, res) => {
       id: req.params.id
     });
     
-    // PERBAIKAN: Menggunakan [result] untuk mendapatkan objek hasil
-    const [result] = await query(
+    const result = await query(
       'UPDATE accounts SET nama_lengkap = ?, umur_bulan = ?, jenis_kelamin = ?, nama_orang_tua = ?, alamat = ?, nomor_hp = ? WHERE id = ?',
       [nama_lengkap, umur_bulan, jenisKelaminNormalized, nama_orang_tua, alamat, nomor_hp, req.params.id]
     );
       
     console.log('Update query result:', result);
       
-    // PERBAIKAN: Cek 'affectedRows' dari 'result'
     if (result.affectedRows === 0) {
        // Ini bisa terjadi jika datanya sama persis, tidak perlu error
        console.log('No rows affected, data might be identical.');
@@ -504,7 +495,6 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // Delete account
-// Logika delete dari teman Anda sudah benar
 router.delete('/:id', verifyToken, async (req, res) => {
   console.log('Deleting account ID:', req.params.id);
   
@@ -537,7 +527,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
     // 2. Hapus user dari tabel 'users'.
     // Sesuai schema.sql Anda, ON DELETE CASCADE akan otomatis
     // menghapus baris di tabel 'accounts' yang terkait.
-    const [result] = await query(
+    const result = await query(
       'DELETE FROM users WHERE username = ?',
       [account.username]
     );
@@ -569,5 +559,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;

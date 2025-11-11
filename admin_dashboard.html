@@ -25,12 +25,10 @@
     </script>
   </head>
   <body class="min-h-screen bg-gradient-posyandu">
-    <!-- Navigation Header -->
     <header
       class="w-full bg-white/90 backdrop-blur-sm border-b border-green-100 sticky top-0 z-50 shadow-sm"
     >
       <div class="px-6 py-4 flex items-center justify-between">
-        <!-- Logo and Brand -->
         <div class="flex items-center gap-3">
           <div
             class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"
@@ -59,7 +57,6 @@
           </div>
         </div>
 
-        <!-- Admin Profile and Logout -->
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg">
             <div
@@ -108,9 +105,7 @@
       </div>
     </header>
 
-    <!-- Main Layout -->
     <div class="flex min-h-screen">
-      <!-- Sidebar -->
       <aside
         class="w-64 bg-white/80 backdrop-blur-sm border-r border-green-100 shadow-lg hidden lg:block"
       >
@@ -215,7 +210,6 @@
         </div>
       </aside>
 
-      <!-- Mobile Menu Button -->
       <button
         id="mobile-menu-btn"
         class="lg:hidden fixed top-20 left-4 z-40 bg-green-600 text-white p-2 rounded-lg shadow-lg"
@@ -235,9 +229,7 @@
         </svg>
       </button>
 
-      <!-- Main Content -->
       <main class="flex-1 p-4 lg:p-8">
-        <!-- Welcome Section -->
         <div class="mb-8 fade-in">
           <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-2">
             Selamat Datang, Admin
@@ -247,16 +239,19 @@
           </p>
         </div>
 
-        <!-- Quick Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <!-- Total Balita -->
           <div
             class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
           >
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-green-600 text-sm font-medium">Total Balita</p>
-                <p class="text-3xl font-bold text-green-800">120</p>
+                <p
+                  id="stat-total-balita"
+                  class="text-3xl font-bold text-green-800"
+                >
+                  0
+                </p>
               </div>
               <div
                 class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
@@ -277,98 +272,9 @@
               </div>
             </div>
           </div>
-
-          <!-- Normal -->
-          <div
-            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-green-600 text-sm font-medium">Status Normal</p>
-                <p class="text-3xl font-bold text-green-800">90</p>
-              </div>
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Stunting -->
-          <div
-            class="card-hover bg-white/80 backdrop-blur-sm border border-orange-100 rounded-2xl p-6 shadow-lg fade-in"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-orange-600 text-sm font-medium">Stunting</p>
-                <p class="text-3xl font-bold text-orange-800">20</p>
-              </div>
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Gizi Buruk -->
-          <div
-            class="card-hover bg-white/80 backdrop-blur-sm border border-red-100 rounded-2xl p-6 shadow-lg fade-in"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-red-600 text-sm font-medium">Gizi Buruk</p>
-                <p class="text-3xl font-bold text-red-800">10</p>
-              </div>
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center"
-              >
-                <svg
-                  class="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- Main Dashboard Content -->
         <div class="grid lg:grid-cols-3 gap-8">
-          <!-- Jadwal Posyandu -->
           <div
             class="lg:col-span-2 card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
           >
@@ -414,35 +320,10 @@
                     </th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-green-100">
-                  <tr class="hover:bg-green-50 transition-colors">
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800"
-                    >
-                      12 Oktober 2025
-                    </td>
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm text-green-600"
-                    >
-                      Posyandu Melati 1
-                    </td>
-                    <td class="px-6 py-4 text-sm text-green-600">
-                      Imunisasi, Timbang Balita
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-green-50 transition-colors">
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800"
-                    >
-                      12 November 2025
-                    </td>
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm text-green-600"
-                    >
-                      Posyandu Melati 1
-                    </td>
-                    <td class="px-6 py-4 text-sm text-green-600">
-                      Konsultasi Gizi
+                <tbody class="bg-white divide-y divide-green-100" id="dashboardJadwalBody">
+                  <tr>
+                    <td colspan="3" class="px-6 py-4 text-center text-sm text-green-600">
+                      Memuat jadwal...
                     </td>
                   </tr>
                 </tbody>
@@ -450,7 +331,6 @@
             </div>
           </div>
 
-          <!-- Quick Actions -->
           <div
             class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
           >
@@ -517,9 +397,7 @@
           </div>
         </div>
 
-        <!-- Charts Section -->
         <div class="grid lg:grid-cols-2 gap-8 mt-8">
-          <!-- Status Gizi Chart -->
           <div
             class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
           >
@@ -548,23 +426,46 @@
             <div class="mb-4">
               <canvas id="giziChart" class="w-full h-64"></canvas>
             </div>
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div class="text-center p-3 bg-green-50 rounded-lg">
-                <p class="text-2xl font-bold text-green-700">90</p>
+                <p
+                  id="chart-val-normal"
+                  class="text-2xl font-bold text-green-700"
+                >
+                  0
+                </p>
                 <p class="text-sm text-green-600">Normal</p>
               </div>
               <div class="text-center p-3 bg-orange-50 rounded-lg">
-                <p class="text-2xl font-bold text-orange-700">20</p>
+                <p
+                  id="chart-val-stunting"
+                  class="text-2xl font-bold text-orange-700"
+                >
+                  0
+                </p>
                 <p class="text-sm text-orange-600">Stunting</p>
               </div>
               <div class="text-center p-3 bg-red-50 rounded-lg">
-                <p class="text-2xl font-bold text-red-700">10</p>
+                <p
+                  id="chart-val-gizi-buruk"
+                  class="text-2xl font-bold text-red-700"
+                >
+                  0
+                </p>
                 <p class="text-sm text-red-600">Gizi Buruk</p>
               </div>
-            </div>
+              <div class="text-center p-3 bg-indigo-50 rounded-lg">
+                <p
+                  id="chart-val-gizi-lebih"
+                  class="text-2xl font-bold text-indigo-700"
+                >
+                  0
+                </p>
+                <p class="text-sm text-indigo-600">Gizi Lebih</p>
+              </div>
+              </div>
           </div>
 
-          <!-- Gender Distribution Chart -->
           <div
             class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
           >
@@ -595,11 +496,18 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="text-center p-3 bg-blue-50 rounded-lg">
-                <p class="text-2xl font-bold text-blue-700">60</p>
+                <p id="chart-val-laki" class="text-2xl font-bold text-blue-700">
+                  0
+                </p>
                 <p class="text-sm text-blue-600">Laki-laki</p>
               </div>
               <div class="text-center p-3 bg-pink-50 rounded-lg">
-                <p class="text-2xl font-bold text-pink-700">60</p>
+                <p
+                  id="chart-val-perempuan"
+                  class="text-2xl font-bold text-pink-700"
+                >
+                  0
+                </p>
                 <p class="text-sm text-pink-600">Perempuan</p>
               </div>
             </div>
@@ -608,7 +516,6 @@
       </main>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-green-800 text-white py-8 mt-12">
       <div class="container mx-auto px-4 max-w-7xl text-center">
         <p>&copy; 2025 Posyandu Melati 1 - Kelompok 3 Kapita Selekta ITERA</p>

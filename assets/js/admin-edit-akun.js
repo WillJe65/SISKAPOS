@@ -1,10 +1,9 @@
-// admin-edit-akun.js
-let currentGenderFilter = "all"; // Menyimpan filter gender yang aktif
-let currentSearch = ""; // <-- PERUBAHAN: Menyimpan query pencarian
-let editingId = null; // Menyimpan ID yang sedang diedit
-let debug = true; // Enable debug logging
+let currentGenderFilter = "all";
+let currentSearch = "";
+let editingId = null;
+let debug = true;
 
-// Utility functions for consistent token handling and debugging
+// Utility functions utk token handling & debugging
 function getAuthToken() {
     const token = localStorage.getItem('token');
     if (debug) console.log('Token retrieved:', token ? 'Present' : 'Missing');
@@ -40,7 +39,6 @@ function openAddModal() {
   document.getElementById("modalTitle").textContent = "Tambah Akun Baru";
   document.getElementById("accountForm").reset();
   
-  // Show username/password fields for new accounts
   document.getElementById("userCredentials").classList.remove("hidden");
   document.getElementById("username").required = true;
   document.getElementById("password").required = true;
@@ -86,7 +84,6 @@ function editAccount(id) {
       document.getElementById('alamat').value = item.alamat || '';
       document.getElementById('nomorHP').value = item.nomor_hp || '';
 
-      // Hide and disable username/password fields when editing
       document.getElementById("userCredentials").classList.add("hidden");
       document.getElementById("username").required = false;
       document.getElementById("password").required = false;
@@ -123,7 +120,6 @@ function deleteAccount(id) {
     }
   })
     .then(async (res) => {
-  // PERBAIKAN: Handle response dengan benar
   const responseText = await res.text();
   let data;
   
@@ -151,7 +147,7 @@ function deleteAccount(id) {
   }
   
   showNotification(data.message || 'Akun berhasil dihapus!', 'success');
-  loadAccounts(currentPage); // Refresh the table
+  loadAccounts(currentPage);
 })
 }
 
@@ -161,7 +157,6 @@ document.getElementById('accountForm').addEventListener('submit', async function
   
   if (debug) console.log('Form submission started');
   
-  // Show loading state
   const submitButton = document.querySelector('button[type="submit"]');
   const originalButtonText = submitButton.innerHTML;
   
@@ -300,8 +295,6 @@ if (!response.ok) {
 
     if (!response.ok) {
       console.error('Server response not OK:', { status: response.status, statusText: response.statusText, data: data });
-
-      // If the server provided a message, show it. Fall back to generic messages.
       const serverMessage = data && (data.message || data.error || (data.details && data.details.sqlMessage));
 
       if (response.status === 401) {
@@ -311,14 +304,12 @@ if (!response.ok) {
       if (response.status === 400) {
         throw new Error(serverMessage || (data && data.message) || 'Data yang dimasukkan tidak valid');
       }
-      // For 5xx errors prefer server message if available
       if (response.status >= 500) {
         throw new Error(serverMessage || 'Terjadi kesalahan pada server. Silakan coba lagi nanti.');
       }
       throw new Error(serverMessage || `Error ${response.status}: Gagal menyimpan data`);
     }
 
-     // For successful edit/create, response should have success flag or message
     if (!data || (typeof data !== 'object' && !data.message)) {
       console.error('Invalid response structure:', data);
       throw new Error('Format data dari server tidak sesuai');
@@ -328,38 +319,31 @@ if (!response.ok) {
 showNotification(
   data.message || (editingId ? 'Data akun berhasil diperbarui!' : 'Akun baru berhasil ditambahkan!'), 
   'success'
-);    // Reset to first page when adding new account, stay on current page when editing
+);
     await loadAccounts(editingId ? currentPage : 1);
     
   } catch (err) {
     logError('Form submission failed', err);
     showNotification(err.message, 'error');
   } finally {
-    // Restore button state
     submitButton.innerHTML = originalButtonText;
     submitButton.disabled = false;
   }
 });
   
-
-// =======================================================
-// PERBAIKAN LOGIKA FILTER DIMULAI DI SINI
-// =======================================================
 // Fungsi untuk filter dan pencarian
 function applyFilters() {
-  // Logika search dihapus dari sini, karena sudah ditangani backend
   const tableBody = document.getElementById("accountTableBody");
   const tableRows = tableBody.getElementsByTagName("tr");
 
   for (const row of tableRows) {
-    const genderCell = row.getElementsByTagName("td")[3]; // Asumsi kolom ke-4
+    const genderCell = row.getElementsByTagName("td")[3];
 
     if (genderCell) {
       const genderText = (genderCell.textContent || genderCell.innerText)
         .trim()
         .toLowerCase();
 
-      // Pencocokan HANYA berdasarkan filter gender
       const genderMatch =
         currentGenderFilter === "all" || genderText === currentGenderFilter;
 
@@ -370,24 +354,16 @@ function applyFilters() {
 
 function filterData(gender) {
   currentGenderFilter = gender;
-  // Panggil applyFilters, BUKAN loadAccounts
-  // karena kita hanya ingin memfilter data yang sudah ada di halaman
   applyFilters();
 }
-// =======================================================
-// PERBAIKAN LOGIKA FILTER BERAKHIR DI SINI
-// =======================================================
-
 
 // Fungsi untuk merender tabel dengan data dinamis
 function renderAccountTable(data) {
   const tableBody = document.getElementById('accountTableBody');
   const container = document.querySelector('.card-hover');
   
-  // Kosongkan tabel
   tableBody.innerHTML = '';
   
-  // Jika tidak ada data, tampilkan pesan
   if (!data || data.length === 0) {
     tableBody.innerHTML = `
       <tr>
@@ -405,18 +381,13 @@ function renderAccountTable(data) {
     return;
   }
   
-  // Render setiap baris data
   data.forEach((account) => {
     tableBody.appendChild(renderAccountRow(account));
   });
-  
-  // Setup checkbox "Pilih Semua"
   setupSelectAllCheckbox();
 }
 
-// Render pagination controls
 function renderPagination(pagination) {
-  // Remove existing pagination if any
   const existingPagination = document.getElementById('pagination-controls');
   if (existingPagination) {
     existingPagination.remove();
@@ -442,7 +413,6 @@ function renderPagination(pagination) {
 
   container.insertAdjacentHTML('beforeend', paginationHtml);
 
-  // Add event listeners to pagination buttons
   document.querySelectorAll('.pagination-button').forEach(button => {
     button.addEventListener('click', () => {
       const page = parseInt(button.dataset.page);
@@ -453,7 +423,6 @@ function renderPagination(pagination) {
   });
 }
 
-// Generate pagination buttons HTML
 function generatePaginationButtons(pagination) {
   const { currentPage, totalPages } = pagination;
   let buttons = [];
@@ -471,9 +440,9 @@ function generatePaginationButtons(pagination) {
   // Page numbers
   for (let i = 1; i <= totalPages; i++) {
     if (
-      i === 1 || // First page
-      i === totalPages || // Last page
-      (i >= currentPage - 1 && i <= currentPage + 1) // Pages around current
+      i === 1 ||
+      i === totalPages ||
+      (i >= currentPage - 1 && i <= currentPage + 1)
     ) {
       buttons.push(`
         <button 
@@ -508,14 +477,12 @@ function generatePaginationButtons(pagination) {
 function renderAccountRow(account) {
   const tr = document.createElement('tr');
   tr.className = 'hover:bg-green-50 transition-colors';
-  tr.dataset.id = account.id; // Add data-id attribute
+  tr.dataset.id = account.id;
 
-  // Format the row data
   const isLaki = account.jenis_kelamin && account.jenis_kelamin.toLowerCase().includes('laki');
   const avatarColor = isLaki ? 'blue' : 'pink';
   const genderBadgeColor = isLaki ? 'blue' : 'pink';
   
-  // Get initials safely
   const getInitials = (name) => {
     if (!name) return '??';
     return name.split(' ')
@@ -525,7 +492,6 @@ function renderAccountRow(account) {
               .toUpperCase();
   };
 
-  // Get initials for avatar
   const initials = account.nama_lengkap 
     ? account.nama_lengkap.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()
     : '??';
@@ -613,9 +579,6 @@ function setupSelectAllCheckbox() {
 let currentPage = 1;
 const itemsPerPage = 10;
 
-// =======================================================
-// PERBAIKAN LOGIKA LOAD DATA DIMULAI DI SINI
-// =======================================================
 async function loadAccounts(page = 1) {
   const tableBody = document.getElementById('accountTableBody');
   
@@ -635,7 +598,6 @@ async function loadAccounts(page = 1) {
       console.log('Using token:', token.substring(0, 10) + '...');
     }
 
-    // Show loading state
     const loadingHtml = `
       <tr>
         <td colspan="5" class="px-6 py-8 text-center text-green-600">
@@ -649,7 +611,6 @@ async function loadAccounts(page = 1) {
     
     tableBody.innerHTML = loadingHtml;
     
-    // PERUBAHAN: Tambahkan parameter 'search' ke URL
     const apiUrl = `http://localhost:5000/api/accounts?page=${page}&limit=${itemsPerPage}&search=${encodeURIComponent(currentSearch)}`;
     
     if (debug) console.log('Making API request to:', apiUrl);
@@ -676,7 +637,6 @@ async function loadAccounts(page = 1) {
       console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     }
 
-    // Get the raw response text first
     const responseText = await response.text().catch(error => {
       console.error('Error reading response:', error);
       throw new Error('Gagal membaca respons dari server');
@@ -712,19 +672,13 @@ async function loadAccounts(page = 1) {
     const { data, pagination } = responseData;
     currentPage = pagination.currentPage;
     
-    // Render table content
     renderAccountTable(data);
-    
-    // Render pagination controls
     renderPagination(pagination);
-    
-    // PERUBAHAN: Terapkan filter GENDER ke data yang baru dimuat
     applyFilters();
 
   } catch (err) {
     console.error('Failed to load accounts:', err);
     
-    // Show error state
     tableBody.innerHTML = `
       <tr>
         <td colspan="5" class="px-6 py-8 text-center text-red-600">
@@ -739,16 +693,10 @@ async function loadAccounts(page = 1) {
       </tr>
     `;
   }
-
 }
-// =======================================================
-// PERBAIKAN LOGIKA LOAD DATA BERAKHIR DI SINI
-// =======================================================
-
 
 // Fungsi untuk menampilkan notifikasi
 function showNotification(message, type = 'info') {
-  // Buat elemen notifikasi
   const notification = document.createElement('div');
   notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
     type === 'success' ? 'bg-green-500 text-white' : 
@@ -763,16 +711,13 @@ function showNotification(message, type = 'info') {
       <span>${message}</span>
     </div>
   `;
-  
-  // Tambahkan ke body
+
   document.body.appendChild(notification);
-  
-  // Animasi masuk
+
   setTimeout(() => {
     notification.classList.remove('translate-x-full');
   }, 10);
-  
-  // Hapus setelah 3 detik
+
   setTimeout(() => {
     notification.classList.add('translate-x-full');
     setTimeout(() => {
@@ -790,7 +735,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log('Current page:', window.location.pathname);
   }
 
-  // Verify authentication first
   const token = getAuthToken();
   if (!token) {
     console.warn('No authentication token found');
@@ -798,31 +742,18 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
-  // =======================================================
-  // PERBAIKAN EVENT LISTENER SEARCH DIMULAI DI SINI
-  // =======================================================
   // Set up search listener
   const searchInput = document.getElementById("search");
   if (searchInput) {
     if (debug) console.log('Setting up search input handler');
-    
-    // HAPUS listener 'keyup' yang lama
-    // searchInput.addEventListener("keyup", applyFilters);
-    
-    // GANTI DENGAN listener 'change'
     searchInput.addEventListener("change", function () {
-      // Event 'change' akan aktif saat user tekan Enter atau klik di luar
-      currentSearch = searchInput.value.trim(); // Simpan query pencarian
-      loadAccounts(1); // Muat ulang data dari halaman 1
+      currentSearch = searchInput.value.trim();
+      loadAccounts(1);
     });
 
   } else {
     console.error('Search input element not found');
   }
-  // =======================================================
-  // PERBAIKAN EVENT LISTENER SEARCH BERAKHIR DI SINI
-  // =======================================================
-
 
   // Set up select all checkbox
   const selectAllCheckbox = document.getElementById("selectAll");
@@ -866,36 +797,29 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Load accounts on page load
   loadAccounts();
-
-    // Poll for external changes every 10 seconds and auto-refresh when data changes
-    // This helps keep the table updated if another admin changes data concurrently.
     let lastSnapshot = null;
     async function pollForChanges() {
       try {
         const token = getAuthToken();
         if (!token) return;
         
-        // PERUBAHAN: Polling juga harus menggunakan query pencarian saat ini
         const pollUrl = `http://localhost:5000/api/accounts?page=${currentPage}&limit=${itemsPerPage}&search=${encodeURIComponent(currentSearch)}`;
         
         const res = await fetch(pollUrl, {
           headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         });
-        if (!res.ok) return; // ignore errors here
+        if (!res.ok) return;
         const json = await res.json();
         const snapshot = JSON.stringify({ total: json.pagination && json.pagination.totalRecords, data: json.data && json.data.map(d=>d.id) });
         if (lastSnapshot && lastSnapshot !== snapshot) {
-          // Data changed, refresh current page
           showNotification('Terdapat perubahan data. Menyegarkan...', 'info');
           await loadAccounts(currentPage);
         }
         lastSnapshot = snapshot;
       } catch (err) {
-        // Poll failures are non-fatal; ignore silently
         if (debug) console.warn('Polling error:', err.message);
       }
     }
-    // Start polling when page is visible
     let pollInterval = null;
     function startPolling() {
       if (pollInterval) return;

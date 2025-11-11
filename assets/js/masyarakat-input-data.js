@@ -8,20 +8,17 @@ function logout() {
 }
 
 /* --------------------------
-   Mobile menu toggle (perbaikan untuk desktop & mobile)
+   Mobile menu toggle
    -------------------------- */
 document.addEventListener("DOMContentLoaded", function () {
-  // Cari tombol menu mobile: id utama atau fallback ke attribute data
   const mobileMenuBtn =
     document.getElementById("mobile-menu-btn") ||
     document.querySelector("[data-mobile-menu-btn]");
 
-  // Cari sidebar mobile: id utama atau fallback ke <aside>
   const sidebar =
     document.getElementById("mobile-sidebar") ||
     document.querySelector("aside");
 
-  // Jika elemen tidak ditemukan, log peringatan dan hentikan (mempermudah debug)
   if (!mobileMenuBtn) {
     console.warn(
       "[MobileMenu] Tombol mobile menu tidak ditemukan. Harap pastikan ada id='mobile-menu-btn' atau attribute data-mobile-menu-btn."
@@ -35,7 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  // Pastikan attribute aria-controls ter-set (aksesibilitas)
   try {
     const controls = mobileMenuBtn.getAttribute("aria-controls");
     if (!controls) {
@@ -44,22 +40,16 @@ document.addEventListener("DOMContentLoaded", function () {
         sidebar.id || "mobile-sidebar"
       );
     }
-  } catch (err) {
-    // safe-ignore
-  }
+  } catch (err) {}
 
-  // Helper: cek apakah sedang di mobile view
   function isMobileView() {
     return window.innerWidth < 768; // md breakpoint Tailwind = 768px
   }
 
-  // Helper: buka menu (hanya untuk mobile)
   function openMenu() {
-    if (!isMobileView()) return; // Jangan manipulasi di desktop
+    if (!isMobileView()) return; 
 
-    // Hapus class yang menyembunyikan dan tambahkan class untuk menampilkan sidebar
     sidebar.classList.remove("hidden", "-translate-x-full");
-    // Tambahkan class posisi/animasi agar terlihat sebagai overlay pada mobile
     sidebar.classList.add(
       "transform",
       "translate-x-0",
@@ -69,17 +59,13 @@ document.addEventListener("DOMContentLoaded", function () {
       "h-full",
       "z-30"
     );
-    // Cegah scrolling halaman utama saat sidebar terbuka (UX)
     document.documentElement.classList.add("overflow-hidden");
-    // Update aria-expanded untuk tombol
     mobileMenuBtn.setAttribute("aria-expanded", "true");
   }
 
-  // Helper: tutup menu (hanya untuk mobile)
   function closeMenu() {
-    if (!isMobileView()) return; // Jangan manipulasi di desktop
+    if (!isMobileView()) return; 
 
-    // Sembunyikan kembali sidebar
     sidebar.classList.add("hidden", "-translate-x-full");
     sidebar.classList.remove(
       "translate-x-0",
@@ -89,16 +75,12 @@ document.addEventListener("DOMContentLoaded", function () {
       "h-full",
       "z-30"
     );
-    // Kembalikan ability scroll pada halaman
     document.documentElement.classList.remove("overflow-hidden");
-    // Update aria-expanded
     mobileMenuBtn.setAttribute("aria-expanded", "false");
   }
 
-  // Helper: reset sidebar state berdasarkan ukuran layar
   function resetSidebarState() {
     if (isMobileView()) {
-      // Mode mobile: sidebar hidden by default
       sidebar.classList.add("hidden", "-translate-x-full", "transform");
       sidebar.classList.remove(
         "translate-x-0",
@@ -111,7 +93,6 @@ document.addEventListener("DOMContentLoaded", function () {
       document.documentElement.classList.remove("overflow-hidden");
       mobileMenuBtn.setAttribute("aria-expanded", "false");
     } else {
-      // Mode desktop: sidebar visible, hapus semua class mobile
       sidebar.classList.remove(
         "hidden",
         "-translate-x-full",
@@ -128,29 +109,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Inisialisasi state: jika sidebar belum punya id, beri id agar aria-controls konsisten
   if (!sidebar.id) {
     sidebar.id = "mobile-sidebar";
     mobileMenuBtn.setAttribute("aria-controls", sidebar.id);
   }
 
-  // Set initial state berdasarkan ukuran layar saat load
   resetSidebarState();
 
-  // Event: resize window - reset state sidebar
   let resizeTimer;
   window.addEventListener("resize", function () {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
       resetSidebarState();
-    }, 250); // Debounce 250ms
+    }, 250);
   });
 
-  // Event: klik tombol toggle (hanya aktif di mobile)
   mobileMenuBtn.addEventListener("click", function (e) {
     e.stopPropagation();
 
-    if (!isMobileView()) return; // Ignore di desktop
+    if (!isMobileView()) return; 
 
     const isHidden =
       sidebar.classList.contains("hidden") ||
@@ -162,9 +139,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Event: klik di luar sidebar akan menutup menu (UX mobile only)
   document.addEventListener("click", function (e) {
-    if (!isMobileView()) return; // Ignore di desktop
+    if (!isMobileView()) return; 
 
     if (!sidebar.classList.contains("hidden")) {
       if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
@@ -173,9 +149,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Event: tombol Escape menutup menu (mobile only)
   document.addEventListener("keydown", function (e) {
-    if (!isMobileView()) return; // Ignore di desktop
+    if (!isMobileView()) return; 
 
     if (e.key === "Escape" || e.key === "Esc") {
       if (!sidebar.classList.contains("hidden")) {
@@ -184,11 +159,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Jika ada link di sidebar, menutup menu setelah klik (UX mobile only)
   const sidebarLinks = sidebar.querySelectorAll("a");
   sidebarLinks.forEach((link) => {
     link.addEventListener("click", () => {
-      // Tutup menu setelah navigasi (berguna di mobile)
       if (isMobileView()) {
         closeMenu();
       }
@@ -217,19 +190,17 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// --- MODIFIED FORM SUBMISSION HANDLER ---
+// --- Form Submission Handler ---
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("dataForm");
   const hasilSection = document.getElementById("hasilAnalisis");
   const hasilContent = document.getElementById("hasilContent");
-  const submitBtn = document.getElementById("submitBtn"); // Get the submit button
+  const submitBtn = document.getElementById("submitBtn");
 
   if (form) {
-    // Make the event listener function `async` to use `await`
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      // --- 1. Show a loading state ---
       const originalBtnText = submitBtn.innerHTML;
       submitBtn.disabled = true;
       submitBtn.innerHTML = `
@@ -240,7 +211,6 @@ document.addEventListener("DOMContentLoaded", function () {
         Menganalisis...
       `;
 
-      // Get form values
       const namaAnak = document.getElementById("namaAnak").value;
       const umur = parseFloat(document.getElementById("umur").value);
       const jenisKelamin = document.getElementById("jenisKelamin").value;
@@ -254,23 +224,21 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("lingkarKepala").value
       );
 
-      // --- 2. Calculate local values (BMI and initial status) ---
       const bmi = beratBadan / (tinggiBadan / 100) ** 2;
       let statusGizi = "Normal";
       let statusColor = "green";
 
       if (bmi < 14) {
-        statusGizi = "Kurus";
+        statusGizi = "Gizi Kurang";
         statusColor = "red";
       } else if (bmi > 18) {
-        statusGizi = "Gemuk";
+        statusGizi = "Gizi Lebih";
         statusColor = "orange";
       }
 
-      let rekomendasiAI = ""; // Variable to hold AI recommendation
+      let rekomendasiAI = "";
 
       try {
-        // --- 3. Call our backend API ---
         const apiResponse = await fetch(
           "http://localhost:5000/api/generate-recommendation",
           {
@@ -295,14 +263,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const data = await apiResponse.json();
-        rekomendasiAI = data.recommendation; // Get recommendation from AI
+        rekomendasiAI = data.recommendation;
       } catch (error) {
         console.error("Failed to fetch AI recommendation:", error);
         rekomendasiAI =
-          "Tidak dapat memuat rekomendasi dari AI. Mohon pertahankan pola makan sehat dan konsultasikan dengan petugas Posyandu untuk saran lebih lanjut."; // Fallback message
+          "Tidak dapat memuat rekomendasi dari AI. Mohon pertahankan pola makan sehat dan konsultasikan dengan petugas Posyandu untuk saran lebih lanjut.";
       }
 
-      // --- 4. Display results with AI recommendation ---
       hasilContent.innerHTML = `
         <div class="bg-gradient-to-r from-${statusColor}-50 to-${statusColor}-100 border border-${statusColor}-200 rounded-lg p-6">
           <h4 class="font-semibold text-${statusColor}-800 mb-2">Status Gizi: ${statusGizi}</h4>
@@ -334,12 +301,10 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
       `;
 
-      // --- 5. Reset the button and show results ---
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalBtnText;
       hasilSection.classList.remove("hidden");
 
-      // Scroll to results
       setTimeout(() => {
         hasilSection.scrollIntoView({ behavior: "smooth" });
       }, 100);

@@ -1,4 +1,3 @@
-// admin-tabel.js
 let currentPage = 1;
 const itemsPerPage = 10;
 let currentGenderFilter = "all";
@@ -37,8 +36,6 @@ function closeModal(modalId) {
     modal.classList.add("hidden");
   }, 300);
 }
-
-// --- FUNGSI DINAMIS BARU ---
 
 // Fungsi untuk mengambil detail akun
 async function viewDetail(id) {
@@ -162,7 +159,7 @@ async function viewHistory(id, nama) {
 
 // Fungsi filter dan pencarian
 function applyFilters() {
-  loadAccounts(1); // Panggil loadAccounts untuk memfilter dari sisi server
+  loadAccounts(1);
 }
 
 function filterData(gender) {
@@ -173,7 +170,7 @@ function filterData(gender) {
 // Fungsi untuk merender tabel
 function renderTable(data, pagination) {
   const tableBody = document.getElementById('dataTableBody');
-  tableBody.innerHTML = ''; // Kosongkan tabel
+  tableBody.innerHTML = '';
 
   if (!data || data.length === 0) {
     tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-green-700">Tidak ada data ditemukan.</td></tr>`;
@@ -197,7 +194,6 @@ function renderTable(data, pagination) {
       statusClass = "bg-orange-100 text-orange-800";
     }
     
-    // Get initials safely
     const getInitials = (name) => {
         if (!name) return '??';
         return name.split(' ')
@@ -249,7 +245,6 @@ function renderPagination(pagination) {
   const container = document.querySelector('.sm\\:justify-between');
   if (!container) return;
 
-  // Update text
   const paginationText = container.querySelector('p');
   if(paginationText) {
       if (pagination.totalRecords > 0) {
@@ -263,14 +258,12 @@ function renderPagination(pagination) {
       }
   }
 
-  // Update buttons
   const navContainer = container.querySelector('nav');
   if (!navContainer) return;
   
   const { currentPage, totalPages } = pagination;
   let buttons = [];
 
-  // Previous button
   buttons.push(`
     <button 
       class="pagination-button relative inline-flex items-center px-2 py-2 rounded-l-md border border-green-300 bg-white text-sm font-medium ${currentPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-green-500 hover:bg-green-50'}"
@@ -280,12 +273,11 @@ function renderPagination(pagination) {
     </button>
   `);
 
-  // Page numbers
   for (let i = 1; i <= totalPages; i++) {
     if (
-      i === 1 || // First page
-      i === totalPages || // Last page
-      (i >= currentPage - 1 && i <= currentPage + 1) // Pages around current
+      i === 1 ||
+      i === totalPages ||
+      (i >= currentPage - 1 && i <= currentPage + 1)
     ) {
       buttons.push(`
         <button 
@@ -303,7 +295,6 @@ function renderPagination(pagination) {
     }
   }
 
-  // Next button
   buttons.push(`
     <button 
       class="pagination-button relative inline-flex items-center px-2 py-2 rounded-r-md border border-green-300 bg-white text-sm font-medium ${currentPage === totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-green-500 hover:bg-green-50'}"
@@ -315,7 +306,6 @@ function renderPagination(pagination) {
   
   navContainer.innerHTML = buttons.join('');
   
-  // Add event listeners to new buttons
   document.querySelectorAll('.pagination-button').forEach(button => {
     button.addEventListener('click', (e) => {
       const page = e.currentTarget.dataset.page;
@@ -374,16 +364,13 @@ async function loadAccounts(page = 1) {
   }
 }
 
-// Event listener
+// Inisialisasi saat DOM Selesai Dimuat
 document.addEventListener("DOMContentLoaded", function () {
-  // Setup search
   const searchInput = document.getElementById("search");
   searchInput.addEventListener("keyup", (e) => {
-    // Re-filter on every keyup for instant feedback
      applyFilters();
   });
   
-  // Setup fade-in
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -396,7 +383,6 @@ document.addEventListener("DOMContentLoaded", function () {
     observer.observe(el);
   });
   
-  // Setup modal close on backdrop click
   ['detailModal', 'historyModal'].forEach(modalId => {
       const modal = document.getElementById(modalId);
       if(modal) {
@@ -408,6 +394,5 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   });
 
-  // Load data awal
   loadAccounts(1);
 });

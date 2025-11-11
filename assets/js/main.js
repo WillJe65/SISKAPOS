@@ -1,6 +1,4 @@
-// Fungsi ini dijalankan setelah seluruh halaman dimuat
 document.addEventListener("DOMContentLoaded", function () {
-  // --- FUNGSI GLOBAL ---
 
   // Animasi fade-in saat elemen di-scroll
   const observerOptions = {
@@ -44,12 +42,9 @@ function logout() {
 }
 
 function goBack() {
-  // Coba kembali ke halaman sebelumnya dalam riwayat browser
   if (document.referrer) {
     window.history.back();
   } else {
-    // Fallback jika tidak ada riwayat (misal: halaman dibuka di tab baru)
-    // Arahkan ke dashboard yang sesuai
     if (window.location.pathname.includes("admin")) {
       window.location.href = "admin_dashboard.html";
     } else {

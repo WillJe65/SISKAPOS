@@ -237,10 +237,10 @@
                 Jadwal Berikutnya
               </h3>
             </div>
-            <div class="bg-green-50 rounded-lg p-4">
-              <p class="text-green-800 font-semibold">10 Oktober 2025</p>
-              <p class="text-green-600">Balai Desa</p>
-              <p class="text-sm text-green-500">Imunisasi & Timbang Balita</p>
+            <div class="bg-green-50 rounded-lg p-4" id="next-schedule-card-content">
+              <p class="text-green-800 font-semibold">Memuat...</p>
+              <p class="text-green-600" id="next-schedule-location"></p>
+              <p class="text-sm text-green-500" id="next-schedule-service"></p>
             </div>
           </div>
 
@@ -324,7 +324,7 @@
                     </th>
                   </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-green-100">
+                <tbody class="bg-white divide-y divide-green-100" id="jadwal-table-body">
                   <tr class="hover:bg-green-50 transition-colors">
                     <td
                       class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800"
@@ -390,7 +390,7 @@
                 class="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-4"
               >
                 <h4 class="font-semibold text-yellow-800 mb-2">
-                  Tips Hari Ini
+                  Tips
                 </h4>
                 <p class="text-yellow-700 text-sm">
                   Pastikan anak mendapatkan makanan bergizi seimbang dengan 4

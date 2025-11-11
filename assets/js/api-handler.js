@@ -1,4 +1,3 @@
-// api-handler.js
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('dataForm');
   const submitBtn = document.getElementById('submitBtn');

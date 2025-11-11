@@ -12,32 +12,36 @@ function logout() {
    -------------------------- */
    
 /**
- * Mengubah string tanggal YYYY-MM-DD menjadi format "15 Sep 2025"
- * @param {string} dateString - String tanggal dari database (format: YYYY-MM-DD)
- * @returns {string} Tanggal yang sudah diformat
+ * Mengubah string tanggal YYYY-MM-DD menjadi format "15 Sep 2025, 09:30 WIB"
+ * @param {string} dateString - String tanggal dari database (format ISO/UTC)
+ * @returns {string} Tanggal dan waktu yang sudah diformat
  */
 function formatDate(dateString) {
   if (!dateString) return "-";
   
   try {
-    // Pastikan dateString adalah YYYY-MM-DD
-    const parts = dateString.split('T')[0].split('-').map(Number);
-    if (parts.length !== 3) throw new Error('Invalid date format');
-    
-    // JS Date() month adalah 0-indexed (Januari = 0)
-    const [year, month, day] = parts;
-    const date = new Date(year, month - 1, day);
+    const date = new Date(dateString); 
 
     const options = {
-      day: 'numeric',   // 15
-      month: 'short', // Sep
-      year: 'numeric' // 2025
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Jakarta',
+      hour12: false
     };
     
-    return new Intl.DateTimeFormat('id-ID', options).format(date);
+    let formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+    
+    formattedDate = formattedDate.replace('pukul ', '');
+    formattedDate = formattedDate.replace('.', ':');     
+    
+    return formattedDate + " WIB";
+  
   } catch (e) {
     console.error("Gagal memformat tanggal:", e, dateString);
-    return dateString; // Tampilkan tanggal apa adanya jika gagal
+    return dateString.split('T')[0]; 
   }
 }
 
@@ -50,24 +54,27 @@ function timeAgo(dateString) {
   if (!dateString) return "-";
 
   try {
-    const parts = dateString.split('T')[0].split('-').map(Number);
-    if (parts.length !== 3) throw new Error('Invalid date format');
-    
-    const [year, month, day] = parts;
-    const date = new Date(year, month - 1, day);
+    const date = new Date(dateString);
     const now = new Date();
     
-    // Hitung selisih dalam detik
-    // Kita set jam ke 00:00 agar perbandingan lebih adil per hari
-    now.setHours(0, 0, 0, 0);
-    date.setHours(0, 0, 0, 0);
-
     const seconds = Math.floor((now - date) / 1000);
-    const days = Math.floor(seconds / (60 * 60 * 24));
 
-    if (days === 0) return "Hari ini";
+    if (seconds < 0) {
+      return "Baru saja";
+    }
+
+    if (seconds < 60) return "Baru saja";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes === 1) return "1 menit yang lalu";
+    if (minutes < 60) return `${minutes} menit yang lalu`;
+    
+    const hours = Math.floor(minutes / 60);
+    if (hours === 1) return "1 jam yang lalu";
+    if (hours < 24) return `${hours} jam yang lalu`;
+
+    const days = Math.floor(hours / 24);
     if (days === 1) return "Kemarin";
-    if (days > 1 && days < 7) return `${days} hari yang lalu`;
+    if (days < 7) return `${days} hari yang lalu`;
     
     const weeks = Math.floor(days / 7);
     if (weeks === 1) return "1 minggu yang lalu";
@@ -83,13 +90,12 @@ function timeAgo(dateString) {
 
   } catch (e) {
     console.error("Gagal menghitung timeAgo:", e, dateString);
-    return "-"; // Fallback
+    return "-";
   }
 }
 
-
 /* --------------------------
-   Mobile menu toggle (Kode asli Anda, tidak diubah)
+   Mobile menu toggle
    -------------------------- */
 document.addEventListener("DOMContentLoaded", function () {
   const mobileMenuBtn =
@@ -202,7 +208,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   const userId = localStorage.getItem("userId");
   const tbody = document.getElementById("riwayatTableBody");
 
-  // Jika elemen tabel tidak ada di halaman ini, hentikan fungsi
   if (!tbody) {
     console.log("Bukan halaman riwayat, proses load data riwayat dihentikan.");
     return; 
@@ -214,7 +219,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     return;
   }
 
-  // Tampilkan pesan loading di tabel
   tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-green-600">Memuat data riwayat...</td></tr>`;
 
   try {
@@ -228,12 +232,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     const data = await res.json();
-    tbody.innerHTML = ""; // Kosongkan tabel setelah data diterima
+    tbody.innerHTML = "";
 
     if (data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-green-600">Belum ada data pengukuran</td></tr>`;
       
-      // Set kartu ke nilai default
       document.querySelector(".bg-green-50 .text-green-800").textContent = "N/A";
       document.querySelector(".bg-purple-50 .text-purple-800").textContent = "N/A";
       document.querySelector(".bg-purple-50 .text-sm.text-purple-600").textContent = "Belum ada data";
@@ -241,19 +244,14 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // Data ada, proses seperti sebelumnya
-    
-    // Sortir data (meskipun backend sudah, ini untuk jaminan)
     const sortedData = data.sort((a, b) => new Date(b.tanggal_periksa) - new Date(a.tanggal_periksa));
-    const latest = sortedData[0]; // Data terbaru
+    const latest = sortedData[0];
 
-    // Update kartu ringkasan
     document.querySelector(".bg-green-50 .text-green-800").textContent = latest.status_gizi || "N/A";
     document.querySelector(".bg-purple-50 .text-purple-800").textContent = formatDate(latest.tanggal_periksa);
     document.querySelector(".bg-purple-50 .text-sm.text-purple-600").textContent = timeAgo(latest.tanggal_periksa);
     document.querySelector(".bg-blue-50 .text-2xl.font-bold").textContent = sortedData.length;
 
-    // Tampilkan ke tabel
     sortedData.forEach((item) => {
       const tr = document.createElement("tr");
       tr.classList.add("hover:bg-green-50", "transition-colors");
@@ -261,7 +259,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
           ${formatDate(item.tanggal_periksa)}
         </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.umur_bulan_saat_periksa}</td>
+        <td class."px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.umur_bulan_saat_periksa}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.berat_badan_kg}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.tinggi_badan_cm}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.lingkar_kepala_cm ?? '-'}</td>
@@ -279,7 +277,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const weightCtxEl = document.getElementById("weightChart");
     const heightCtxEl = document.getElementById("heightChart");
 
-    // Hancurkan chart lama jika ada (mencegah error duplikasi)
     let oldWeightChart = Chart.getChart(weightCtxEl);
     if (oldWeightChart) {
       oldWeightChart.destroy();
@@ -289,7 +286,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       oldHeightChart.destroy();
     }
 
-    // Balik urutan data untuk grafik (dari paling lama ke paling baru)
     const chartData = [...sortedData].reverse();
     const chartLabels = chartData.map((d) => formatDate(d.tanggal_periksa));
 
@@ -303,7 +299,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       },
     };
 
-    // Grafik Berat Badan (Weight Chart)
     new Chart(weightCtxEl, {
       type: "line",
       data: {
@@ -325,7 +320,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       options: chartOptions,
     });
 
-    // Grafik Tinggi Badan (Height Chart)
     new Chart(heightCtxEl, {
       type: "line",
       data: {
@@ -359,7 +353,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   } catch (err) {
     console.error("Gagal memuat riwayat:", err);
     tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-600">Gagal memuat data. ${err.message}</td></tr>`;
-    // Juga update kartu jika gagal
     document.querySelector(".bg-green-50 .text-green-800").textContent = "Error";
     document.querySelector(".bg-purple-50 .text-purple-800").textContent = "Error";
     document.querySelector(".bg-purple-50 .text-sm.text-purple-600").textContent = err.message;

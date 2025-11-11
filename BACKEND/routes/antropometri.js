@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('../db.js'); // Impor koneksi database
+const db = require('../db.js');
 const jwt = require('jsonwebtoken');
 const util = require('util');
 const router = express.Router();
@@ -29,7 +29,6 @@ const beginTransaction = util.promisify(db.beginTransaction).bind(db);
 const commit = util.promisify(db.commit).bind(db);
 const rollback = util.promisify(db.rollback).bind(db);
 
-
 // POST /api/antropometri
 // Menyimpan data pengukuran baru
 router.post('/', verifyToken, async (req, res) => {
@@ -54,7 +53,7 @@ router.post('/', verifyToken, async (req, res) => {
     // Start transaction
     await beginTransaction();
     transactionStarted = true;
-
+    
     // 1. Insert ke tabel riwayat
     const riwayatQuery = `
       INSERT INTO riwayat_antropometri 

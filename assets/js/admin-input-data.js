@@ -1,10 +1,7 @@
-// admin-input-data.js
-
-// State global untuk menyimpan data form
 let currentFormData = null;
 let selectedAccountId = null;
 
-// Navigation functions
+// Fungsi navigasi
 function goBack() {
   window.location.href = "admin_dashboard.html";
 }
@@ -16,7 +13,7 @@ function logout() {
   }
 }
 
-// --- FUNGSI BARU UNTUK LOAD AKUN ---
+// Memuat daftar akun (anak) ke dalam dropdown
 async function loadAccountsIntoDropdown() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -25,7 +22,6 @@ async function loadAccountsIntoDropdown() {
   }
 
   try {
-    // Ambil semua akun (tanpa pagination) untuk dropdown
     const response = await fetch('http://localhost:5000/api/accounts?limit=1000', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -34,49 +30,37 @@ async function loadAccountsIntoDropdown() {
     
     const { data } = await response.json();
     
-    // Temukan elemen input teks 'namaAnak'
     const namaAnakInput = document.getElementById('namaAnak');
     
-    // Buat elemen select baru
     const selectEl = document.createElement('select');
-    selectEl.id = 'namaAnakSelect'; // Beri ID baru
+    selectEl.id = 'namaAnakSelect';
     selectEl.required = true;
     selectEl.className = 'block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white';
     
-    // Tambahkan opsi default
     selectEl.innerHTML = '<option value="">-- Pilih Anak --</option>';
     
-    // Isi dropdown dengan data akun
     data.forEach(akun => {
       const option = document.createElement('option');
       option.value = akun.id;
       option.textContent = `${akun.nama_lengkap} (Username: ${akun.username})`;
-      // Simpan data tambahan di elemen option
       option.dataset.umur = akun.umur_bulan;
       option.dataset.kelamin = akun.jenis_kelamin;
       selectEl.appendChild(option);
     });
 
-    // Ganti input teks dengan select dropdown
     namaAnakInput.parentNode.replaceChild(selectEl, namaAnakInput);
 
-    // Tambahkan event listener ke select baru
     selectEl.addEventListener('change', (e) => {
       selectedAccountId = e.target.value;
       const selectedOption = e.target.options[e.target.selectedIndex];
       
       if (selectedOption.value) {
-        // Isi otomatis form umur dan jenis kelamin
         document.getElementById('umur').value = selectedOption.dataset.umur || '';
         document.getElementById('jenisKelamin').value = selectedOption.dataset.kelamin ? selectedOption.dataset.kelamin.toLowerCase() : '';
-        // Kunci field agar tidak bisa diubah
-        // document.getElementById('umur').readOnly = true; // Biarkan bisa di-edit jika umur bertambah
         document.getElementById('jenisKelamin').disabled = true;
       } else {
-        // Kosongkan dan buka kunci jika opsi default dipilih
         document.getElementById('umur').value = '';
         document.getElementById('jenisKelamin').value = '';
-        // document.getElementById('umur').readOnly = false;
         document.getElementById('jenisKelamin').disabled = false;
       }
     });
@@ -88,7 +72,7 @@ async function loadAccountsIntoDropdown() {
   }
 }
 
-// --- MODIFIED FORM SUBMISSION ---
+// Event listener untuk submit form data
 document.getElementById("dataForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
@@ -104,7 +88,6 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
     Menganalisis...
   `;
 
-  // Ambil data dari form
   const selectEl = document.getElementById('namaAnakSelect');
   if (!selectEl || !selectEl.value) {
      alert('Silakan pilih anak terlebih dahulu.');
@@ -114,7 +97,7 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
   }
   
   const selectedOption = selectEl.options[selectEl.selectedIndex];
-  const nama = selectedOption.text.split(' (')[0]; // Ambil nama saja
+  const nama = selectedOption.text.split(' (')[0];
   
   const umur = parseInt(document.getElementById("umur").value);
   const jenisKelamin = document.getElementById("jenisKelamin").value;
@@ -129,12 +112,11 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
      return;
   }
 
-
   const bmi = beratBadan / Math.pow(tinggiBadan / 100, 2);
   let statusGizi, statusClass;
 
-  // Logika status gizi sederhana (bisa disesuaikan)
-  if (bmi < 17.0) { // Contoh batas BMI
+  // Placeholder sederhana untuk status gizi
+  if (bmi < 17.0) {
     statusGizi = "Gizi Kurang";
     statusClass = "bg-yellow-100 text-yellow-800";
   } else if (bmi >= 17.0 && bmi <= 23.0) {
@@ -147,13 +129,11 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
     statusGizi = "Obesitas";
     statusClass = "bg-red-100 text-red-800";
   }
-  // Anda harus mengganti ini dengan standar WHO (Z-score) untuk akurasi
-  // Ini hanya placeholder sederhana
 
   let rekomendasiAI = "";
 
   try {
-    // 2. Panggil backend API untuk mendapatkan rekomendasi dari Gemini
+    // Panggil API untuk rekomendasi AI
     const apiResponse = await fetch('http://localhost:5000/api/generate-recommendation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -180,13 +160,13 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
     rekomendasiAI = "Gagal memuat rekomendasi dari AI. Mohon berikan saran gizi seimbang.";
   }
 
-  // Simpan data di state global untuk fungsi simpanData()
+  // Simpan data sementara di state global
   currentFormData = {
     account_id: selectedAccountId,
     umur,
     beratBadan,
     tinggiBadan,
-    lingkarKepala: !isNaN(lingkarKepala) ? lingkarKepala : null, // Kirim null jika kosong
+    lingkarKepala: !isNaN(lingkarKepala) ? lingkarKepala : null,
     bmi: bmi.toFixed(1),
     statusGizi,
     rekomendasiAI
@@ -205,6 +185,7 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
   submitBtn.innerHTML = originalBtnText;
 });
 
+// Fungsi untuk menampilkan hasil analisis di UI
 function tampilkanHasil(nama, hasil) {
   const hasilDiv = document.getElementById("hasilAnalisis");
 
@@ -241,7 +222,7 @@ function tampilkanHasil(nama, hasil) {
   `;
 }
 
-// --- FUNGSI BARU UNTUK SIMPAN DATA ---
+// Fungsi untuk menyimpan data ke database
 async function simpanData() {
   if (!currentFormData) {
     alert("Tidak ada data untuk disimpan.");
@@ -285,20 +266,17 @@ async function simpanData() {
   }
 }
 
+// Fungsi untuk mereset form dan hasil analisis
 function resetForm() {
   document.getElementById("dataForm").reset();
   
-  // Buka kunci field
-  // document.getElementById('umur').readOnly = false;
   document.getElementById('jenisKelamin').disabled = false;
   
-  // Reset dropdown
   const selectEl = document.getElementById('namaAnakSelect');
   if (selectEl) {
     selectEl.selectedIndex = 0;
   }
   
-  // Reset state
   currentFormData = null;
   selectedAccountId = null;
   
@@ -312,7 +290,7 @@ function resetForm() {
   `;
 }
 
-// Intersection Observer for fade-in animations
+// Intersection Observer untuk animasi fade-in
 const observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
@@ -321,8 +299,9 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.1 });
 
+// Event listener saat dokumen selesai dimuat
 document.addEventListener("DOMContentLoaded", function () {
-  loadAccountsIntoDropdown(); // Panggil fungsi baru
+  loadAccountsIntoDropdown();
   
   const fadeElements = document.querySelectorAll(".fade-in");
   fadeElements.forEach((el) => {

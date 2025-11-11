@@ -14,17 +14,15 @@ router.post('/login', (req, res) => {
     
     console.log('Role received and converted to uppercase:', role);
 
-    // 2. Lakukan pengecekan dengan nilai yang sudah di-konversi
+    // 2. Lakukan pengecekan role
     if (role !== 'ADMIN' && role !== 'MASYARAKAT') {
       return res.status(403).json({ 
         message: `Role tidak valid. Menerima: '${req.body.role}', Mengharapkan: 'ADMIN' atau 'MASYARAKAT'.` 
       });
     }
 
-    // --- PERBAIKAN DIMULAI DI SINI ---
-
-    // 3. Query diubah untuk mengambil accounts.id (a.id)
-    //    Kita menggunakan LEFT JOIN untuk memastikan admin (yang tidak punya akun) tetap bisa login
+    // 3. Query untuk mengambil user_id dan account_id
+    //    LEFT JOIN digunakan agar admin (yang tidak punya data di tabel accounts) tetap bisa login
     const query = `
       SELECT 
         u.id as user_id, 
@@ -38,7 +36,6 @@ router.post('/login', (req, res) => {
       WHERE 
         u.username = ? AND u.password = ? AND u.role = ?
     `;
-    // --- PERBAIKAN SELESAI ---
   
     db.query(query, [username, password, role], (err, results) => {
         if (err) {
@@ -52,19 +49,17 @@ router.post('/login', (req, res) => {
 
         const user = results[0];
         
-        // Tentukan ID yang akan disimpan.
-        // Jika role MASYARAKAT, gunakan account_id.
-        // Jika role ADMIN, gunakan user_id (karena account_id akan null).
+        // Tentukan ID yang akan disimpan di localStorage frontend:
+        // MASYARAKAT menggunakan account_id (untuk relasi ke riwayat)
+        // ADMIN menggunakan user_id (karena account_id mereka null)
         const storedId = user.role === 'MASYARAKAT' ? user.account_id : user.user_id;
         
         // Generate token
         const token = jwt.sign(
         { 
-            // Data di dalam token bisa tetap menggunakan user_id dan username
             id: user.user_id, 
             username: user.username, 
             role: user.role,
-            // Anda bisa tambahkan account_id di token jika perlu
             accountId: user.account_id 
         },
         SECRET_KEY,
@@ -74,10 +69,8 @@ router.post('/login', (req, res) => {
         res.json({ 
           message: 'Login berhasil', 
           user: {
-              // --- PERBAIKAN PENTING ---
-              // Kirim ID yang benar ke frontend untuk disimpan di localStorage
+              // Kirim ID yang benar ke frontend
               id: storedId, 
-              // --- BATAS PERBAIKAN ---
               username: user.username,
               role: user.role
           }, 
