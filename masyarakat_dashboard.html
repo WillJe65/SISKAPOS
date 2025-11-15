@@ -6,7 +6,55 @@
     <title>Dashboard Masyarakat - Posyandu Melati 1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <!-- Your original link to assets/css/style.css was here. -->
+    <!-- I'm adding some styles directly for this self-contained example -->
+    <style>
+      /* Gradient background from your styles */
+      .bg-gradient-posyandu {
+        background: linear-gradient(
+          120deg,
+          rgb(236, 253, 245) 0%,
+          rgb(209, 250, 229) 50%,
+          rgb(236, 253, 245) 100%
+        );
+      }
+      /* Sidebar styles from your styles */
+      .sidebar-item {
+        transition: all 0.2s ease-in-out;
+      }
+      .sidebar-item:hover {
+        background-color: #ecfdf5; /* green-50 */
+        color: #065f46; /* green-800 */
+        transform: translateX(4px);
+      }
+      .sidebar-item.active {
+        background-color: #10b981; /* primary */
+        color: #ffffff; /* primary-foreground */
+        box-shadow: 0 4px 12px -1px rgba(16, 185, 129, 0.4);
+      }
+      /* Card hover effect from your styles */
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.15);
+      }
+      /* Fade-in animation from your styles */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+    </style>
 
     <script>
       tailwind.config = {
@@ -209,44 +257,12 @@
           </p>
         </div>
 
-        <!-- Quick Info Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-          <!-- Jadwal Berikutnya -->
-          <div
-            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
-          >
-            <div class="flex items-center gap-3 mb-4">
-              <div
-                class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
-              >
-                <svg
-                  class="w-5 h-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-              </div>
-              <h3 class="text-lg font-semibold text-green-800">
-                Jadwal Berikutnya
-              </h3>
-            </div>
-            <div class="bg-green-50 rounded-lg p-4" id="next-schedule-card-content">
-              <p class="text-green-800 font-semibold">Memuat...</p>
-              <p class="text-green-600" id="next-schedule-location"></p>
-              <p class="text-sm text-green-500" id="next-schedule-service"></p>
-            </div>
-          </div>
-
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
           <!-- Status Anak -->
+          <!-- We add `lg:col-span-2` to make this card span 2 columns -->
           <div
-            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in lg:col-span-2"
           >
             <div class="flex items-center gap-3 mb-4">
               <div
@@ -274,95 +290,11 @@
               <p class="text-sm text-blue-500">Tinggi: 85 cm</p>
             </div>
           </div>
-        </div>
-
-        <!-- Main Dashboard Content -->
-        <div class="grid lg:grid-cols-3 gap-8">
-          <!-- Jadwal Posyandu -->
-          <div
-            class="lg:col-span-2 card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
-          >
-            <div class="flex items-center gap-3 mb-6">
-              <div
-                class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center"
-              >
-                <svg
-                  class="w-4 h-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
-              </div>
-              <h3 class="text-2xl font-bold text-green-800">Jadwal Posyandu</h3>
-            </div>
-
-            <div class="overflow-hidden rounded-lg border border-green-100">
-              <table class="w-full">
-                <thead class="bg-green-50">
-                  <tr>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
-                    >
-                      Tanggal
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
-                    >
-                      Lokasi
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider"
-                    >
-                      Layanan
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-green-100" id="jadwal-table-body">
-                  <tr class="hover:bg-green-50 transition-colors">
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800"
-                    >
-                      10 Okt 2025
-                    </td>
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm text-green-600"
-                    >
-                      Balai Desa
-                    </td>
-                    <td class="px-6 py-4 text-sm text-green-600">
-                      Imunisasi, Timbang Balita
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-green-50 transition-colors">
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800"
-                    >
-                      17 Okt 2025
-                    </td>
-                    <td
-                      class="px-6 py-4 whitespace-nowrap text-sm text-green-600"
-                    >
-                      Pos RW 3
-                    </td>
-                    <td class="px-6 py-4 text-sm text-green-600">
-                      Konsultasi Gizi
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
 
           <!-- Edukasi & Tips -->
+          <!-- This card now automatically flows into the 1st column -->
           <div
-            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in lg:col-span-2"
           >
             <div class="flex items-center gap-3 mb-6">
               <div
@@ -429,11 +361,9 @@
               </button>
             </div>
           </div>
-        </div>
 
-        <!-- Charts Section -->
-        <div class="grid lg:grid-cols-2 gap-8 mt-8">
           <!-- Riwayat Imunisasi Chart -->
+          <!-- This card now flows into the 2nd column, next to Edukasi Gizi -->
           <div
             class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
           >
@@ -476,6 +406,7 @@
           </div>
 
           <!-- Perkembangan Berat Badan -->
+          <!-- This card flows to the next row, in the 1st column -->
           <div
             class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
           >
@@ -518,6 +449,8 @@
             </div>
           </div>
         </div>
+        <!-- End of the new unified grid -->
+
       </main>
     </div>
 
@@ -527,7 +460,6 @@
         <p>&copy; 2025 Posyandu Melati 1 - Kelompok 3 Kapita Selekta ITERA</p>
       </div>
     </footer>
-
     <script src="assets/js/main.js"></script>
     <script src="assets/js/masyarakat-dashboard.js"></script>
   </body>

@@ -9,7 +9,6 @@ USE siskapos_db;
 -- =======================================================
 -- Urutan drop penting karena Foreign Key
 DROP TABLE IF EXISTS riwayat_antropometri;
-DROP TABLE IF EXISTS jadwals;
 DROP TABLE IF EXISTS accounts;
 DROP TABLE IF EXISTS users;
 
@@ -64,23 +63,6 @@ CREATE TABLE IF NOT EXISTS riwayat_antropometri (
 );
 
 -- =======================================================
--- CREATE TABLE: JADWALS
--- =======================================================
-CREATE TABLE IF NOT EXISTS jadwals (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  tanggal DATE NOT NULL,
-  lokasi VARCHAR(255) NOT NULL,
-  waktu_mulai TIME NOT NULL,
-  waktu_selesai TIME NOT NULL,
-  alamat_lengkap TEXT,
-  layanan TEXT,
-  keterangan_tambahan TEXT,
-  status ENUM('Menunggu Konfirmasi', 'Terkonfirmasi') DEFAULT 'Menunggu Konfirmasi',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- =======================================================
 -- TRIGGER: AUTO INSERT INTO USERS WHEN NEW ACCOUNT ADDED
 -- =======================================================
 DELIMITER $$
@@ -123,12 +105,6 @@ INSERT INTO riwayat_antropometri (id, account_id, tanggal_periksa, umur_bulan_sa
 (3, 14, '2025-11-12', 18, 20.00, 90.00, 50.00, 24.7, 'Gizi Lebih', 'Gagal memuat rekomendasi dari AI. Mohon berikan saran gizi seimbang.', '2025-11-12 02:08:03'),
 (4, 20, '2025-11-12', 20, 20.00, 80.00, 50.00, 31.2, 'Obesitas', 'Gagal memuat rekomendasi dari AI. Mohon berikan saran gizi seimbang.', '2025-11-12 04:31:48'),
 (5, 21, '2025-11-12', 18, 13.00, 90.00, 48.00, 16.0, 'Gizi Kurang', 'Gagal memuat rekomendasi dari AI. Mohon berikan saran gizi seimbang.', '2025-11-12 04:33:40');
-
--- Memasukkan data jadwals sesuai dump MariaDB (ID 15, 16, 17)
-INSERT INTO jadwals (id, tanggal, lokasi, waktu_mulai, waktu_selesai, alamat_lengkap, layanan, keterangan_tambahan, status, created_at, updated_at) VALUES
-(15, '2025-11-13', 'Posyandu RW 01', '03:09:00', '04:09:00', 'faefaefaefaef', 'Pemeriksaan Kesehatan Balita', '', 'Terkonfirmasi', '2025-11-12 03:09:40', '2025-11-12 03:09:42'),
-(16, '2025-11-26', 'Posyandu RW 02', '03:09:00', '05:09:00', 'faefaefaefaef', 'Imunisasi, Timbang & Ukur', '', 'Terkonfirmasi', '2025-11-12 03:09:57', '2025-11-12 03:10:11'),
-(17, '2025-11-30', 'Posyandu RW 03', '04:10:00', '08:10:00', 'faefaefaefaef', 'Timbang & Ukur, Konsultasi Gizi', '', 'Terkonfirmasi', '2025-11-12 03:10:08', '2025-11-12 03:10:13');
 
 -- =======================================================
 -- RESULT EXPLANATION
