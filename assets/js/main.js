@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // Fungsi navigasi yang bisa dipanggil dari HTML
 function logout() {
   if (confirm("Apakah Anda yakin ingin logout?")) {
-    window.location.href = "dashboard.html";
+    window.location.href = "/";
   }
 }
 
@@ -46,9 +46,9 @@ function goBack() {
     window.history.back();
   } else {
     if (window.location.pathname.includes("admin")) {
-      window.location.href = "admin_dashboard.html";
+      window.location.href = "/admin-dashboard";
     } else {
-      window.location.href = "masyarakat_dashboard.html";
+      window.location.href = "/masyarakat_dashboard";
     }
   }
 }

@@ -1,6 +1,6 @@
 // Fungsi navigasi
 function goBack() {
-  window.location.href = "masyarakat_dashboard.html";
+  window.location.href = "/masyarakat-dashboard";
 }
 
 function logout() {
@@ -9,7 +9,7 @@ function logout() {
     localStorage.removeItem('userId');
     localStorage.removeItem('user');
     
-    window.location.href = "login.html"; 
+    window.location.href = "/login"; 
   }
 }
 
@@ -280,7 +280,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   if (!token || !userId) {
     alert("Sesi Anda telah berakhir. Silakan login kembali.");
-    window.location.href = "login.html"; 
+    window.location.href = "/login"; 
     return; 
   }
 

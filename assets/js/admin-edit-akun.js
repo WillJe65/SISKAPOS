@@ -13,7 +13,7 @@ function getAuthToken() {
 function handleTokenError() {
     console.warn('No token found or token expired');
     localStorage.removeItem('token');
-    window.location.href = 'login.html';
+    window.location.href = '/login';
 }
 
 function logError(message, error) {
@@ -23,14 +23,14 @@ function logError(message, error) {
 
 // Fungsi navigasi
 function goBack() {
-  window.location.href = "admin_dashboard.html";
+  window.location.href = "/admin-dashboard";
 }
 
 function logout() {
   if (confirm("Apakah Anda yakin ingin logout?")) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = "dashboard.html";
+    window.location.href = "/";
   }
 }
 
@@ -55,7 +55,7 @@ function closeModal() {
 function editAccount(id) {
   const token = localStorage.getItem('token');
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -68,7 +68,7 @@ function editAccount(id) {
       if (!res.ok) {
         if (res.status === 401) {
           localStorage.removeItem('token');
-          window.location.href = 'login.html';
+          window.location.href = '/login';
           throw new Error('Sesi habis. Silakan login kembali.');
         }
         throw new Error('Gagal mengambil data');
@@ -102,7 +102,7 @@ function deleteAccount(id) {
   
   const token = localStorage.getItem('token');
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -133,7 +133,7 @@ function deleteAccount(id) {
   if (!res.ok) {
     if (res.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = 'login.html';
+      window.location.href = '/login';
       throw new Error('Sesi habis. Silakan login kembali.');
     }
     throw new Error(data.message || data.error || 'Gagal menghapus data');
@@ -659,7 +659,7 @@ async function loadAccounts(page = 1) {
     if (!response.ok) {
       if (response.status === 401) {
         localStorage.removeItem('token');
-        window.location.href = 'login.html';
+        window.location.href = '/login';
         throw new Error('Sesi habis. Silakan login kembali.');
       }
       throw new Error(responseData.message || `Error ${response.status}: Gagal memuat data`);
@@ -738,7 +738,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const token = getAuthToken();
   if (!token) {
     console.warn('No authentication token found');
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 

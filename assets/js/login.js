@@ -60,11 +60,11 @@ document.getElementById("loginForm").addEventListener("submit", async function (
       alert("Login berhasil!");
       
       if (data.user.role === "ADMIN") {
-        window.location.href = "admin_dashboard.html";
+        window.location.href = "/admin-dashboard";
       } else if (data.user.role === "MASYARAKAT") {
-        window.location.href = "masyarakat_dashboard.html";
+        window.location.href = "/masyarakat-dashboard";
       } else {
-        window.location.href = "dashboard.html";
+        window.location.href = "/";
       }
     }
   } catch (error) {
@@ -79,7 +79,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
 
 // Back button functionality
 function handleBackClick() {
-  window.location.href = "dashboard.html";
+  window.location.href = "/dashboard";
 }
 
 //smooth scroll

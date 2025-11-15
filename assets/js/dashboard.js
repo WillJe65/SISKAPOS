@@ -1,6 +1,6 @@
 // Navigation to login page
 function navigateToLogin() {
-  window.location.href = "login.html";
+  window.location.href = "/login";
 }
 
 // Smooth scroll to info section

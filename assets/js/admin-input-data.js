@@ -3,13 +3,13 @@ let selectedAccountId = null;
 
 // Fungsi navigasi
 function goBack() {
-  window.location.href = "admin_dashboard.html";
+  window.location.href = "/admin-dashboard";
 }
 
 function logout() {
   if (confirm("Apakah Anda yakin ingin logout?")) {
     localStorage.removeItem('token');
-    window.location.href = "dashboard.html";
+    window.location.href = "/";
   }
 }
 
@@ -17,7 +17,7 @@ function logout() {
 async function loadAccountsIntoDropdown() {
   const token = localStorage.getItem('token');
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -231,7 +231,7 @@ async function simpanData() {
 
   const token = localStorage.getItem('token');
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
   

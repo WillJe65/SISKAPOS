@@ -1,5 +1,5 @@
 function logout() {
-  window.location.href = "dashboard.html";
+  window.location.href = "/";
 }
 
 let giziChartInstance = null;
@@ -12,7 +12,7 @@ async function loadDashboardData() {
   const token = localStorage.getItem('token');
   if (!token) {
     alert('Sesi Anda telah berakhir. Silakan login kembali.');
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -29,7 +29,7 @@ async function loadDashboardData() {
     if (accountResponse.status === 401) {
        alert('Sesi Anda tidak valid. Silakan login kembali.');
        localStorage.removeItem('token');
-       window.location.href = 'login.html';
+       window.location.href = '/login';
        return;
     }
     

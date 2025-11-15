@@ -5,7 +5,7 @@ function getToken() {
   const token = localStorage.getItem('token');
   if (!token) {
     alert('Anda belum login. Silakan login terlebih dahulu.');
-    window.location.href = 'dashboard.html';
+    window.location.href = '/';
     return null;
   }
   return token;
@@ -20,14 +20,14 @@ function getAuthHeaders() {
 }
 
 function goBack() {
-  window.location.href = 'admin_dashboard.html';
+  window.location.href = '/admin-dashboard';
 }
 
 function logout() {
   if (confirm('Apakah Anda yakin ingin logout?')) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = 'dashboard.html';
+    window.location.href = '/';
   }
 }
 

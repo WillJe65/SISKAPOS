@@ -4,13 +4,13 @@ let currentGenderFilter = "all";
 
 // Fungsi navigasi
 function goBack() {
-  window.location.href = "admin_dashboard.html";
+  window.location.href = "/admin-dashboard";
 }
 
 function logout() {
   if (confirm("Apakah Anda yakin ingin logout?")) {
     localStorage.removeItem('token');
-    window.location.href = "dashboard.html";
+    window.location.href = "/dashboard";
   }
 }
 
@@ -41,7 +41,7 @@ function closeModal(modalId) {
 async function viewDetail(id) {
   const token = localStorage.getItem('token');
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
   
@@ -50,7 +50,7 @@ async function viewDetail(id) {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) {
-        if(res.status === 401) window.location.href = 'login.html';
+        if(res.status === 401) window.location.href = '/login';
         throw new Error('Gagal mengambil data');
     }
     
@@ -78,7 +78,7 @@ async function viewDetail(id) {
 async function viewHistory(id, nama) {
   const token = localStorage.getItem('token');
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -93,7 +93,7 @@ async function viewHistory(id, nama) {
     });
     
     if (!res.ok) {
-        if(res.status === 401) window.location.href = 'login.html';
+        if(res.status === 401) window.location.href = '/login';
         throw new Error('Gagal mengambil data riwayat');
     }
     
@@ -321,7 +321,7 @@ function renderPagination(pagination) {
 async function loadAccounts(page = 1) {
   const token = localStorage.getItem('token');
   if (!token) {
-    window.location.href = 'login.html';
+    window.location.href = '/login';
     return;
   }
   
@@ -348,7 +348,7 @@ async function loadAccounts(page = 1) {
     });
     
     if (!response.ok) {
-       if(response.status === 401) window.location.href = 'login.html';
+       if(response.status === 401) window.location.href = '/login';
        throw new Error('Gagal memuat data');
     }
     
