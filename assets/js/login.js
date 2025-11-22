@@ -2,7 +2,7 @@
 // Tips: Biarkan BASE_URL kosong ('') jika Frontend & Backend ada di domain/IP yang sama.
 // Ini disebut "Relative URL". Browser akan otomatis menyesuaikan dengan IP server.
 const API_CONFIG = {
-  BASE_URL: process.env.BASE_URL, // Contoh jika beda server: 'http://api.siskapos.com'
+  BASE_URL: '', // Contoh jika beda server: 'http://api.siskapos.com'
   ENDPOINTS: {
     LOGIN: '/api/auth/login',
     // Tambahkan endpoint lain di sini nanti jika perlu

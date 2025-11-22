@@ -1,7 +1,7 @@
 // === KONFIGURASI UTAMA ===
 // Menggunakan Relative URL agar otomatis menyesuaikan dengan IP/Domain saat ini
 const API_CONFIG = {
-  BASE_URL: process.env.BASE_URL, 
+  BASE_URL: '', 
   ENDPOINTS: {
     ACCOUNTS: '/api/accounts'
   }

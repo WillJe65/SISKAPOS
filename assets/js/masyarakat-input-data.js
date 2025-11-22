@@ -1,6 +1,6 @@
 // === KONFIGURASI UTAMA ===
 const API_CONFIG = {
-  BASE_URL: process.env.BASE_URL, // Biarkan kosong agar otomatis mengikuti domain/IP
+  BASE_URL: '', // Biarkan kosong agar otomatis mengikuti domain/IP
   ENDPOINTS: {
     ACCOUNTS: '/api/accounts',
     JADWAL: '/api/jadwal'

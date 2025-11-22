@@ -1,6 +1,6 @@
 // === KONFIGURASI UTAMA (Sama seperti login) ===
 const API_CONFIG = {
-  BASE_URL: BASE_URL, // Biarkan kosong untuk "Relative URL" (Otomatis ikut domain/IP saat ini)
+  BASE_URL: '', // Biarkan kosong untuk "Relative URL" (Otomatis ikut domain/IP saat ini)
   ENDPOINTS: {
     ACCOUNTS: '/api/accounts',
     JADWAL: '/api/jadwal'

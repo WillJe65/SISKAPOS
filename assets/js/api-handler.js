@@ -1,6 +1,6 @@
 // === KONFIGURASI UTAMA ===
 const API_CONFIG = {
-  BASE_URL: process.env.BASE_URL, // Biarkan kosong untuk Relative URL (Otomatis ikut domain/IP)
+  BASE_URL: '', // Biarkan kosong untuk Relative URL (Otomatis ikut domain/IP)
   ENDPOINTS: {
     GENERATE_RESULT: '/generate-result' 
     // Catatan: Pastikan di backend route ini benar-benar ada (biasanya diawali /api/)
