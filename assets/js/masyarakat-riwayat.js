@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-green-600">Memuat data riwayat...</td></tr>`;
 
   try {
-    const res = await fetch(`http://localhost:5000/api/accounts/${userId}/history`, {
+    const res = await fetch(`http://168.231.119.61/api/accounts/${userId}/history`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

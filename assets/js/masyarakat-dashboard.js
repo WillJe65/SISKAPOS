@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Fetch Riwayat Anak
   try {
-    const res = await fetch(`http://localhost:5000/api/accounts/${userId}/history`, {
+    const res = await fetch(`http://168.231.119.61/api/accounts/${userId}/history`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -431,7 +431,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Fetch Jadwal
   try {
-    const scheduleRes = await fetch(`http://localhost:5000/api/jadwal`, {
+    const scheduleRes = await fetch(`http://168.231.119.61/api/jadwal`, {
         headers: { Authorization: `Bearer ${token}` },
     });
 

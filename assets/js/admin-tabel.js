@@ -46,7 +46,7 @@ async function viewDetail(id) {
   }
   
   try {
-    const res = await fetch(`http://localhost:5000/api/accounts/${id}`, {
+    const res = await fetch(`http://168.231.119.61/api/accounts/${id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) {
@@ -88,7 +88,7 @@ async function viewHistory(id, nama) {
   openModal("historyModal");
   
   try {
-    const res = await fetch(`http://localhost:5000/api/accounts/${id}/history`, {
+    const res = await fetch(`http://168.231.119.61/api/accounts/${id}/history`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     

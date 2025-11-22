@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         const apiResponse = await fetch(
-          "http://localhost:5000/api/generate-recommendation",
+          "http://168.231.119.61/api/generate-recommendation",
           {
             method: "POST",
             headers: {

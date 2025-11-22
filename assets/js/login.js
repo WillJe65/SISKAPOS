@@ -39,7 +39,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
   loadingSpinner.classList.remove("hidden");
 
   try {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
+    const res = await fetch("http://168.231.119.61/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password, role }),
