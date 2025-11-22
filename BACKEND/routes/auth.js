@@ -1,28 +1,41 @@
 const express = require('express');
-const db = require('../db');
+// Sesuaikan path ini dengan lokasi db.js Anda (biasanya di folder config)
+const db = require('../config/db'); 
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+
+dotenv.config(); 
 
 const router = express.Router();
-const SECRET_KEY = process.env.SECRET_KEY;
+// Ambil kunci rahasia dari .env, atau gunakan default JIKA darurat (jangan pakai default di production)
+const SECRET_KEY = process.env.JWT_SECRET || process.env.SECRET_KEY || 'kunci_rahasia_default_siskapos';
 
 router.post('/login', (req, res) => {
-    console.log('login attempt:', req.body)
-    const { username, password } = req.body; 
+    // SECURITY FIX 1: Hapus log yang menampilkan password!
+    // console.log('login attempt:', req.body); -> INI BERBAHAYA
 
-    // 1. Ambil role, pastikan itu string, dan ubah ke huruf besar
+    const { username, password } = req.body;
+
+    // Validasi Input
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Username dan Password wajib diisi.' });
+    }
+
+    // 1. Ambil role, pastikan string, huruf besar
     const role = req.body.role ? String(req.body.role).toUpperCase() : undefined;
     
-    console.log('Role received and converted to uppercase:', role);
+    // console.log('Role login:', role); // Log role boleh, password JANGAN.
 
-    // 2. Lakukan pengecekan role
+    // 2. Validasi Role
     if (role !== 'ADMIN' && role !== 'MASYARAKAT') {
       return res.status(403).json({ 
-        message: `Role tidak valid. Menerima: '${req.body.role}', Mengharapkan: 'ADMIN' atau 'MASYARAKAT'.` 
+        message: `Role tidak valid. Harap pilih 'ADMIN' atau 'MASYARAKAT'.` 
       });
     }
 
-    // 3. Query untuk mengambil user_id dan account_id
-    //    LEFT JOIN digunakan agar admin (yang tidak punya data di tabel accounts) tetap bisa login
+    // 3. Query Database
+    // CATATAN KEAMANAN: Saat ini password dicek langsung (Plain Text).
+    // Untuk keamanan maksimal di masa depan, ubahlah menjadi Hashing (bcrypt).
     const query = `
       SELECT 
         u.id as user_id, 
@@ -39,42 +52,42 @@ router.post('/login', (req, res) => {
   
     db.query(query, [username, password, role], (err, results) => {
         if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ message: 'Kesalahan server' });
+            console.error('❌ Database Error saat Login:', err);
+            return res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
         }
         
-        else if (results.length === 0) {
-        return res.status(401).json({ message: 'Username, password, atau role salah.' });
+        if (results.length === 0) {
+            // Gunakan pesan umum agar hacker tidak bisa menebak user/password mana yang salah
+            return res.status(401).json({ message: 'Username, Password, atau Role salah.' });
         }
 
         const user = results[0];
         
-        // Tentukan ID yang akan disimpan di localStorage frontend:
-        // MASYARAKAT menggunakan account_id (untuk relasi ke riwayat)
-        // ADMIN menggunakan user_id (karena account_id mereka null)
+        // Tentukan ID yang akan disimpan di frontend
         const storedId = user.role === 'MASYARAKAT' ? user.account_id : user.user_id;
         
-        // Generate token
+        // 4. Generate Token (JWT)
         const token = jwt.sign(
-        { 
-            id: user.user_id, 
-            username: user.username, 
-            role: user.role,
-            accountId: user.account_id 
-        },
-        SECRET_KEY,
-        { expiresIn: '2h' }
+            { 
+                id: user.user_id, 
+                username: user.username, 
+                role: user.role,
+                accountId: user.account_id 
+            },
+            SECRET_KEY,
+            { expiresIn: '2h' } // Token valid selama 2 jam
         );
 
+        console.log(`✅ User ${username} (${role}) berhasil login.`);
+
         res.json({ 
-          message: 'Login berhasil', 
-          user: {
-              // Kirim ID yang benar ke frontend
-              id: storedId, 
-              username: user.username,
-              role: user.role
-          }, 
-          token 
+            message: 'Login berhasil', 
+            user: {
+                id: storedId, 
+                username: user.username, 
+                role: user.role
+            }, 
+            token 
         });
     });
 });

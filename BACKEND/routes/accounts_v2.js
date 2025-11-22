@@ -1,8 +1,16 @@
 const express = require('express');
-const db = require('../db');
+// PERBAIKAN 1: Sesuaikan path dengan lokasi db.js yang benar (di folder config)
+const db = require('../config/db'); 
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const util = require('util');
+const dotenv = require('dotenv');
+
+// Load env variables
+dotenv.config();
+
+// PERBAIKAN 2: Gunakan Secret Key yang SAMA PERSIS dengan auth.js
+const SECRET_KEY = process.env.JWT_SECRET || process.env.SECRET_KEY || 'kunci_rahasia_default_siskapos';
 
 // Convert db.query and transaction methods to Promise-based
 const query = util.promisify(db.query).bind(db);
@@ -12,50 +20,41 @@ const rollback = util.promisify(db.rollback).bind(db);
 
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
-  console.log('Request received:', {
-    method: req.method,
-    path: req.path,
-    headers: req.headers,
-    query: req.query
-  });
+  // console.log('Request to Protected Route:', req.path); // Debugging
 
   // Ensure response will be JSON
   res.setHeader('Content-Type', 'application/json');
 
   const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    console.log('No token provided in request');
+  
+  // Validasi format Header "Bearer <token>"
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('No valid token provided');
     return res.status(401).json({ 
       success: false,
-      message: 'Token tidak ditemukan. Silakan login kembali.' 
+      message: 'Token tidak ditemukan atau format salah. Silakan login kembali.' 
     });
   }
 
   const token = authHeader.split(' ')[1];
-  if (!token) {
-    console.log('Invalid Authorization header format');
-    return res.status(401).json({ 
-      success: false,
-      message: 'Format token tidak valid. Silakan login kembali.' 
-    });
-  }
 
   try {
-    const decoded = jwt.verify(token, 'rahasia_posyandu');
+    // PERBAIKAN 3: Verify menggunakan variable SECRET_KEY dari .env
+    const decoded = jwt.verify(token, SECRET_KEY);
     req.user = decoded;
-    console.log('Token verified for user:', decoded.username);
+    // console.log('Token verified for user:', decoded.username);
     next();
   } catch (err) {
     console.error('Token verification failed:', err.message);
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
-        message: 'Token sudah kadaluarsa. Silakan login kembali.'
+        message: 'Sesi Anda telah berakhir (Token Expired). Silakan login ulang.'
       });
     }
     return res.status(401).json({ 
       success: false,
-      message: 'Token tidak valid. Silakan login kembali.' 
+      message: 'Token tidak valid. Akses ditolak.' 
     });
   }
 };
@@ -69,7 +68,7 @@ router.get('/', verifyToken, async (req, res) => {
     const search = req.query.search || '';
     const gender = req.query.gender || ''; // Filter gender
     
-    console.log('Fetching accounts - Page:', page, 'Limit:', limit, 'Search:', search, 'Gender:', gender);
+    // console.log('Fetching accounts params:', { page, limit, search, gender });
 
     let baseQuery = `
       SELECT 
@@ -138,7 +137,7 @@ router.get('/', verifyToken, async (req, res) => {
     queryParams.push(limit, offset);
     const results = await query(dataQuery, queryParams);
 
-    console.log(`Found ${countResult.total} total records, returning ${results.length} results`);
+    // console.log(`Returning ${results.length} accounts`);
 
     res.json({
       data: results,
@@ -159,7 +158,7 @@ router.get('/', verifyToken, async (req, res) => {
 router.get('/:id/history', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('Fetching history for account ID:', id);
+    // console.log('Fetching history for account ID:', id);
 
     const history = await query(
       `SELECT * FROM riwayat_antropometri 
@@ -179,7 +178,7 @@ router.get('/:id/history', verifyToken, async (req, res) => {
 // Get single account
 router.get('/:id', verifyToken, async (req, res) => {
   try {
-    console.log('Fetching account details for ID:', req.params.id);
+    // console.log('Fetching account details for ID:', req.params.id);
     const [account] = await query(
       `SELECT a.*, u.role 
        FROM accounts a 
@@ -189,7 +188,6 @@ router.get('/:id', verifyToken, async (req, res) => {
     );
 
     if (!account) {
-      console.log('Account not found for ID:', req.params.id);
       return res.status(404).json({ message: 'Account not found' });
     }
 
@@ -213,8 +211,7 @@ router.post('/', verifyToken, async (req, res) => {
     nomor_hp,
   } = req.body;
 
-  console.log('Creating new account for username:', username);
-  console.log('POST /api/accounts payload:', req.body);
+  // console.log('Creating new account for username:', username);
 
   let transactionStarted = false;
 
@@ -241,7 +238,7 @@ router.post('/', verifyToken, async (req, res) => {
       });
     }
 
-    if (!umur_bulan || isNaN(Number(umur_bulan)) || Number(umur_bulan) < 0) {
+    if (umur_bulan === undefined || umur_bulan === null || isNaN(Number(umur_bulan)) || Number(umur_bulan) < 0) {
       return res.status(400).json({ 
         success: false,
         message: 'Umur bulan wajib diisi dan harus angka valid' 
@@ -283,7 +280,6 @@ router.post('/', verifyToken, async (req, res) => {
     );
 
     if (existingUserResult && existingUserResult.length > 0) {
-      console.log('Username already exists:', username);
       await rollback();
       return res.status(400).json({ 
         success: false,
@@ -312,17 +308,31 @@ router.post('/', verifyToken, async (req, res) => {
       ]
     );
 
-    if (password) {
-      await query(
-        'UPDATE users SET password = ? WHERE username = ?',
-        [password, cleanUsername]
-      );
+    // JIKA password ada, kita update user yang (seharusnya) dibuat oleh Trigger database.
+    // Jika tidak ada trigger, bagian ini mungkin perlu INSERT INTO users dulu.
+    // Asumsi: Sesuai kode Anda sebelumnya, Anda melakukan UPDATE.
+    // Namun, jika user belum ada di tabel users, UPDATE tidak akan melakukan apa-apa.
+    // PERBAIKAN LOGIKA (Safety Check): Cek apakah user ada, jika tidak INSERT.
+    
+    const checkUser = await query('SELECT id FROM users WHERE username = ?', [cleanUsername]);
+    
+    if (checkUser.length === 0) {
+        // Insert Manual ke tabel Users jika belum ada (karena UPDATE doang ga bakal jalan)
+        await query(
+            'INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
+            [cleanUsername, password, 'MASYARAKAT']
+        );
+    } else {
+        await query(
+            'UPDATE users SET password = ? WHERE username = ?',
+            [password, cleanUsername]
+        );
     }
 
     await commit();
     transactionStarted = false;
 
-    console.log('Account created successfully for:', cleanUsername);
+    // console.log('Account created successfully for:', cleanUsername);
     res.status(201).json({ 
       success: true,
       message: 'Akun berhasil dibuat',
@@ -346,9 +356,6 @@ router.post('/', verifyToken, async (req, res) => {
     if (error.code === 'ER_DUP_ENTRY') {
       errorMessage = 'Username sudah digunakan';
       statusCode = 400;
-    } else if (error.code === 'ER_NO_REFERENCED_ROW' || error.code === 'ER_NO_REFERENCED_ROW_2') {
-      errorMessage = 'Data referensi tidak valid';
-      statusCode = 400;
     }
 
     const errorResponse = {
@@ -356,10 +363,6 @@ router.post('/', verifyToken, async (req, res) => {
       message: errorMessage,
       error: error.message
     };
-
-    if (process.env.NODE_ENV !== 'production' && error.sqlMessage) {
-      errorResponse.details = { sqlMessage: error.sqlMessage };
-    }
 
     res.status(statusCode).json(errorResponse);
   }
@@ -377,8 +380,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     password
   } = req.body;
 
-  console.log('Updating account ID:', req.params.id);
-  console.log('PUT /api/accounts/' + req.params.id + ' payload:', req.body);
+  // console.log('Updating account ID:', req.params.id);
 
   try {
     await beginTransaction();
@@ -398,16 +400,6 @@ router.put('/:id', verifyToken, async (req, res) => {
         message: 'Nama, umur, dan jenis kelamin wajib diisi'
       });
     }
-
-    console.log('Validated update data:', {
-      id: req.params.id,
-      nama_lengkap,
-      umur_bulan,
-      jenis_kelamin,
-      nama_orang_tua,
-      alamat,
-      nomor_hp
-    });
     
     let jenisKelaminNormalized = null;
     if (jenis_kelamin) {
@@ -429,28 +421,11 @@ router.put('/:id', verifyToken, async (req, res) => {
         message: 'Akun tidak ditemukan'
       });
     }
-
-    console.log('Executing update with params:', {
-      nama_lengkap,
-      umur_bulan,
-      jenis_kelamin: jenisKelaminNormalized,
-      nama_orang_tua,
-      alamat,
-      nomor_hp,
-      id: req.params.id
-    });
     
     const result = await query(
       'UPDATE accounts SET nama_lengkap = ?, umur_bulan = ?, jenis_kelamin = ?, nama_orang_tua = ?, alamat = ?, nomor_hp = ? WHERE id = ?',
       [nama_lengkap, umur_bulan, jenisKelaminNormalized, nama_orang_tua, alamat, nomor_hp, req.params.id]
     );
-      
-    console.log('Update query result:', result);
-      
-    if (result.affectedRows === 0) {
-       // Ini bisa terjadi jika datanya sama persis, tidak perlu error
-       console.log('No rows affected, data might be identical.');
-    }
 
     if (password) {
       await query(
@@ -463,7 +438,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     }
 
     await commit();
-    console.log('Account updated successfully, ID:', req.params.id);
+    // console.log('Account updated successfully, ID:', req.params.id);
     res.json({ 
       success: true,
       message: 'Akun berhasil diperbarui',
@@ -477,26 +452,17 @@ router.put('/:id', verifyToken, async (req, res) => {
       console.error('Rollback failed:', rollbackError);
     }
 
-    const errorResponse = {
+    res.status(500).json({
       success: false,
       message: 'Gagal memperbarui akun',
-      error: error.message,
-      details: {}
-    };
-
-    if (error.sqlMessage) {
-      errorResponse.details.sqlMessage = error.sqlMessage;
-    }
-    
-    console.error('Sending error response:', errorResponse);
-    
-    res.status(500).json(errorResponse);
+      error: error.message
+    });
   }
 });
 
 // Delete account
 router.delete('/:id', verifyToken, async (req, res) => {
-  console.log('Deleting account ID:', req.params.id);
+  // console.log('Deleting account ID:', req.params.id);
   
   try {
     const accountId = parseInt(req.params.id);
@@ -515,28 +481,18 @@ router.delete('/:id', verifyToken, async (req, res) => {
 
     // Jika akun tidak ditemukan
     if (!account || !account.username) {
-      console.log('Account not found for ID:', accountId);
       return res.status(404).json({ 
         success: false, 
         message: 'Akun tidak ditemukan' 
       });
     }
 
-    console.log(`Found username: ${account.username} for ID: ${accountId}. Deleting user...`);
-
     // 2. Hapus user dari tabel 'users'.
-    // Sesuai schema.sql Anda, ON DELETE CASCADE akan otomatis
-    // menghapus baris di tabel 'accounts' yang terkait.
+    // ON DELETE CASCADE di database akan otomatis menghapus baris di 'accounts'.
     const result = await query(
       'DELETE FROM users WHERE username = ?',
       [account.username]
     );
-
-    if (result.affectedRows === 0) {
-      console.warn(`User ${account.username} not found in users table, but account ${accountId} was.`);
-    }
-
-    console.log(`Successfully deleted user: ${account.username} (and cascaded to account ID: ${accountId})`);
 
     res.json({ 
       success: true,
