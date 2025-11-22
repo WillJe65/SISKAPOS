@@ -1,3 +1,11 @@
+// === KONFIGURASI UTAMA ===
+const API_CONFIG = {
+  BASE_URL: process.env.BASE_URL, // Biarkan kosong untuk Relative URL (Otomatis ikut domain/IP)
+  ENDPOINTS: {
+    ACCOUNTS: '/api/accounts'
+  }
+};
+
 let currentPage = 1;
 const itemsPerPage = 10;
 let currentGenderFilter = "all";
@@ -46,7 +54,10 @@ async function viewDetail(id) {
   }
   
   try {
-    const res = await fetch(`http://168.231.119.61/api/accounts/${id}`, {
+    // UPDATE: Menggunakan Config Dinamis
+    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}/${id}`;
+
+    const res = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) {
@@ -88,7 +99,10 @@ async function viewHistory(id, nama) {
   openModal("historyModal");
   
   try {
-    const res = await fetch(`http://168.231.119.61/api/accounts/${id}/history`, {
+    // UPDATE: Menggunakan Config Dinamis
+    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}/${id}/history`;
+
+    const res = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
@@ -335,7 +349,10 @@ async function loadAccounts(page = 1) {
   const searchFilter = document.getElementById("search").value;
 
   try {
-    let url = `http://localhost:5000/api/accounts?page=${page}&limit=${itemsPerPage}`;
+    // UPDATE: Menggunakan Config Dinamis
+    // Sebelumnya: http://localhost:5000/api/accounts... (ERROR di VPS)
+    let url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}?page=${page}&limit=${itemsPerPage}`;
+    
     if (searchFilter) {
       url += `&search=${encodeURIComponent(searchFilter)}`;
     }

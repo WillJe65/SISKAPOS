@@ -1,3 +1,12 @@
+// === KONFIGURASI UTAMA ===
+// Menggunakan Relative URL agar otomatis menyesuaikan dengan IP/Domain saat ini
+const API_CONFIG = {
+  BASE_URL: process.env.BASE_URL, 
+  ENDPOINTS: {
+    ACCOUNTS: '/api/accounts'
+  }
+};
+
 let currentGenderFilter = "all";
 let currentSearch = "";
 let editingId = null;
@@ -59,7 +68,10 @@ function editAccount(id) {
     return;
   }
 
-  fetch(`http://localhost:5000/api/accounts/${id}`, {
+  // UPDATE: Menggunakan Config Dinamis
+  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}/${id}`;
+
+  fetch(url, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
@@ -113,7 +125,10 @@ function deleteAccount(id) {
     row.style.pointerEvents = 'none';
   }
 
-  fetch(`http://localhost:5000/api/accounts/${id}`, { 
+  // UPDATE: Menggunakan Config Dinamis
+  const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}/${id}`;
+
+  fetch(url, { 
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`
@@ -219,9 +234,10 @@ document.getElementById('accountForm').addEventListener('submit', async function
       return;
     }
 
+    // UPDATE: Menggunakan Config Dinamis
     const url = editingId 
-      ? `http://localhost:5000/api/accounts/${editingId}`
-      : 'http://localhost:5000/api/accounts';
+      ? `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}/${editingId}`
+      : `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}`;
 
     if (debug) console.log('Making API request to:', url);
 
@@ -272,26 +288,26 @@ document.getElementById('accountForm').addEventListener('submit', async function
     if (debug) console.log('API Response status:', response.status);
 
     const responseText = await response.text();
-let data;
+    let data;
 
-try {
-  data = responseText ? JSON.parse(responseText) : {};
-  if (debug) console.log('Parsed API Response data:', data);
-} catch (parseError) {
-  console.error('JSON Parse Error:', parseError);
-  throw new Error('Format respons server tidak valid');
-}
+    try {
+      data = responseText ? JSON.parse(responseText) : {};
+      if (debug) console.log('Parsed API Response data:', data);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      throw new Error('Format respons server tidak valid');
+    }
 
-if (!response.ok) {
-  const errorMessage = data.message || data.error || `Error ${response.status}`;
-  
-  if (response.status === 401) {
-    handleTokenError();
-    throw new Error('Sesi habis. Silakan login kembali.');
-  }
-  
-  throw new Error(errorMessage);
-}
+    if (!response.ok) {
+      const errorMessage = data.message || data.error || `Error ${response.status}`;
+      
+      if (response.status === 401) {
+        handleTokenError();
+        throw new Error('Sesi habis. Silakan login kembali.');
+      }
+      
+      throw new Error(errorMessage);
+    }
 
     if (!response.ok) {
       console.error('Server response not OK:', { status: response.status, statusText: response.statusText, data: data });
@@ -316,10 +332,10 @@ if (!response.ok) {
     }
 
     closeModal();
-showNotification(
-  data.message || (editingId ? 'Data akun berhasil diperbarui!' : 'Akun baru berhasil ditambahkan!'), 
-  'success'
-);
+    showNotification(
+      data.message || (editingId ? 'Data akun berhasil diperbarui!' : 'Akun baru berhasil ditambahkan!'), 
+      'success'
+    );
     await loadAccounts(editingId ? currentPage : 1);
     
   } catch (err) {
@@ -611,7 +627,8 @@ async function loadAccounts(page = 1) {
     
     tableBody.innerHTML = loadingHtml;
     
-    const apiUrl = `http://localhost:5000/api/accounts?page=${page}&limit=${itemsPerPage}&search=${encodeURIComponent(currentSearch)}`;
+    // UPDATE: Menggunakan Config Dinamis
+    const apiUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}?page=${page}&limit=${itemsPerPage}&search=${encodeURIComponent(currentSearch)}`;
     
     if (debug) console.log('Making API request to:', apiUrl);
     
@@ -627,7 +644,7 @@ async function loadAccounts(page = 1) {
     }).catch(error => {
       console.error('Network error:', error);
       if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-        throw new Error('Tidak dapat terhubung ke server. Pastikan server berjalan di http://localhost:5000');
+        throw new Error('Tidak dapat terhubung ke server backend. Pastikan API berjalan.');
       }
       throw new Error('Gagal terhubung ke server. Periksa koneksi internet Anda.');
     });
@@ -803,7 +820,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         const token = getAuthToken();
         if (!token) return;
         
-        const pollUrl = `http://localhost:5000/api/accounts?page=${currentPage}&limit=${itemsPerPage}&search=${encodeURIComponent(currentSearch)}`;
+        // UPDATE: Menggunakan Config Dinamis
+        const pollUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}?page=${currentPage}&limit=${itemsPerPage}&search=${encodeURIComponent(currentSearch)}`;
         
         const res = await fetch(pollUrl, {
           headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }

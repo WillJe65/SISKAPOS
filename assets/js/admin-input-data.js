@@ -1,3 +1,13 @@
+// === KONFIGURASI UTAMA ===
+const API_CONFIG = {
+  BASE_URL: '', // Biarkan kosong untuk Relative URL
+  ENDPOINTS: {
+    ACCOUNTS: '/api/accounts',
+    RECOMMENDATION: '/api/generate-recommendation',
+    ANTROPOMETRI: '/api/antropometri'
+  }
+};
+
 let currentFormData = null;
 let selectedAccountId = null;
 
@@ -22,7 +32,10 @@ async function loadAccountsIntoDropdown() {
   }
 
   try {
-    const response = await fetch('http://localhost:5000/api/accounts?limit=1000', {
+    // UPDATE: Menggunakan Config Dinamis
+    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}?limit=1000`;
+    
+    const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
@@ -133,8 +146,10 @@ document.getElementById("dataForm").addEventListener("submit", async function (e
   let rekomendasiAI = "";
 
   try {
-    // Panggil API untuk rekomendasi AI
-    const apiResponse = await fetch('http://localhost:5000/api/generate-recommendation', {
+    // UPDATE: Menggunakan Config Dinamis
+    const urlRecommendation = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RECOMMENDATION}`;
+
+    const apiResponse = await fetch(urlRecommendation, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -240,7 +255,10 @@ async function simpanData() {
   saveBtn.innerText = 'Menyimpan...';
 
   try {
-    const response = await fetch('http://localhost:5000/api/antropometri', {
+    // UPDATE: Menggunakan Config Dinamis
+    const urlAntropometri = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ANTROPOMETRI}`;
+
+    const response = await fetch(urlAntropometri, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',

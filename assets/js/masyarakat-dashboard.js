@@ -1,3 +1,12 @@
+// === KONFIGURASI UTAMA ===
+const API_CONFIG = {
+  BASE_URL: process.env.BASE_URL, // Biarkan kosong agar otomatis mengikuti domain/IP
+  ENDPOINTS: {
+    ACCOUNTS: '/api/accounts',
+    JADWAL: '/api/jadwal'
+  }
+};
+
 // Fungsi navigasi
 function goBack() {
   window.location.href = "/masyarakat-dashboard";
@@ -286,7 +295,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Fetch Riwayat Anak
   try {
-    const res = await fetch(`http://168.231.119.61/api/accounts/${userId}/history`, {
+    // UPDATE: Menggunakan Config Dinamis
+    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}/${userId}/history`;
+
+    const res = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -431,7 +443,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Fetch Jadwal
   try {
-    const scheduleRes = await fetch(`http://168.231.119.61/api/jadwal`, {
+    // UPDATE: Menggunakan Config Dinamis
+    const scheduleUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.JADWAL}`;
+
+    const scheduleRes = await fetch(scheduleUrl, {
         headers: { Authorization: `Bearer ${token}` },
     });
 

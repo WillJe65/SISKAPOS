@@ -3,7 +3,7 @@ const db = require('../db');
 const jwt = require('jsonwebtoken');
 
 const router = express.Router();
-const SECRET_KEY = 'rahasia_posyandu';
+const SECRET_KEY = process.env.SECRET_KEY;
 
 router.post('/login', (req, res) => {
     console.log('login attempt:', req.body)

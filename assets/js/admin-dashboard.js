@@ -1,3 +1,12 @@
+// === KONFIGURASI UTAMA (Sama seperti login) ===
+const API_CONFIG = {
+  BASE_URL: BASE_URL, // Biarkan kosong untuk "Relative URL" (Otomatis ikut domain/IP saat ini)
+  ENDPOINTS: {
+    ACCOUNTS: '/api/accounts',
+    JADWAL: '/api/jadwal'
+  }
+};
+
 function logout() {
   window.location.href = "/";
 }
@@ -17,11 +26,15 @@ async function loadDashboardData() {
   }
 
   try {
+    // UPDATE: Menggunakan API_CONFIG agar tidak Hardcode IP
+    const accountsUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}?limit=10000`;
+    const jadwalUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.JADWAL}`;
+
     const [accountResponse, jadwalResponse] = await Promise.all([
-      fetch('http://localhost:5000/api/accounts?limit=10000', {
+      fetch(accountsUrl, {
         headers: { 'Authorization': `Bearer ${token}` }
       }),
-      fetch('http://localhost:5000/api/jadwal', {
+      fetch(jadwalUrl, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
     ]);
@@ -236,8 +249,8 @@ function updateCharts(stats) {
 document.addEventListener("DOMContentLoaded", function () {
 
   /* --------------------------
-     Mobile menu toggle
-     -------------------------- */
+      Mobile menu toggle
+      -------------------------- */
   const mobileMenuBtn = document.getElementById("mobile-menu-btn") || document.querySelector("[data-mobile-menu-btn]");
   const sidebar = document.getElementById("mobile-sidebar") || document.querySelector("aside");
   
@@ -327,8 +340,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* --------------------------
-     Intersection Observer (Kode Asli)
-     -------------------------- */
+      Intersection Observer (Kode Asli)
+      -------------------------- */
   const observerOptions = {
     threshold: 0.1,
     rootMargin: "0px 0px -50px 0px",
@@ -348,8 +361,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /* --------------------------
-     Charts (Kode Asli, Dimodifikasi)
-     -------------------------- */
+      Charts (Kode Asli, Dimodifikasi)
+      -------------------------- */
   
   loadDashboardData();
 

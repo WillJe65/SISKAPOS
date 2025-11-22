@@ -1,10 +1,24 @@
+// === KONFIGURASI UTAMA ===
+const API_CONFIG = {
+  BASE_URL: '', // Biarkan kosong agar otomatis mengikuti domain/IP
+  ENDPOINTS: {
+    ACCOUNTS: '/api/accounts'
+  }
+};
+
 // Navigation functions
 function goBack() {
   window.location.href = "/masyarakat-dashboard";
 }
 
 function logout() {
-  window.location.href = "/login";
+  if (confirm('Apakah Anda yakin ingin logout?')) {
+    // PERBAIKAN: Hapus token agar sesi benar-benar bersih
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('user');
+    window.location.href = "/login";
+  }
 }
 
 /* --------------------------
@@ -222,7 +236,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-green-600">Memuat data riwayat...</td></tr>`;
 
   try {
-    const res = await fetch(`http://168.231.119.61/api/accounts/${userId}/history`, {
+    // UPDATE: Menggunakan Config Dinamis
+    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}/${userId}/history`;
+
+    const res = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -259,7 +276,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
           ${formatDate(item.tanggal_periksa)}
         </td>
-        <td class."px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.umur_bulan_saat_periksa}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.umur_bulan_saat_periksa}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.berat_badan_kg}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.tinggi_badan_cm}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${item.lingkar_kepala_cm ?? '-'}</td>

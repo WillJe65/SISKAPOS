@@ -1,3 +1,14 @@
+// === KONFIGURASI UTAMA ===
+// Tips: Biarkan BASE_URL kosong ('') jika Frontend & Backend ada di domain/IP yang sama.
+// Ini disebut "Relative URL". Browser akan otomatis menyesuaikan dengan IP server.
+const API_CONFIG = {
+  BASE_URL: process.env.BASE_URL, // Contoh jika beda server: 'http://api.siskapos.com'
+  ENDPOINTS: {
+    LOGIN: '/api/auth/login',
+    // Tambahkan endpoint lain di sini nanti jika perlu
+  }
+};
+
 // Password toggle functionality
 document
   .getElementById("passwordToggle")
@@ -39,7 +50,13 @@ document.getElementById("loginForm").addEventListener("submit", async function (
   loadingSpinner.classList.remove("hidden");
 
   try {
-    const res = await fetch("http://168.231.119.61/api/auth/login", {
+    // MENGGUNAKAN KONFIGURASI (Tidak Hardcode lagi)
+    // Hasilnya: "" + "/api/auth/login" -> "/api/auth/login"
+    const fullUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`;
+    
+    console.log('Attempting login to:', fullUrl); // Debugging
+
+    const res = await fetch(fullUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password, role }),
@@ -69,7 +86,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     }
   } catch (error) {
     console.error("Login error:", error);
-    alert("Terjadi kesalahan koneksi ke server. Pastikan backend berjalan di port 5000.");
+    alert("Terjadi kesalahan koneksi ke server. Cek konsol browser (F12) untuk detail.");
   } finally {
     submitBtn.disabled = false;
     buttonText.textContent = "Masuk";
