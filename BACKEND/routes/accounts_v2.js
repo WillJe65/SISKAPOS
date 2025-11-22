@@ -1,6 +1,6 @@
 const express = require('express');
 // PERBAIKAN 1: Sesuaikan path dengan lokasi db.js yang benar (di folder config)
-const db = require('../config/db'); 
+const db = require('../db'); 
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const util = require('util');
