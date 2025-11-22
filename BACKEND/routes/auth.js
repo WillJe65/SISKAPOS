@@ -1,6 +1,6 @@
 const express = require('express');
 // Sesuaikan path ini dengan lokasi db.js Anda (biasanya di folder config)
-const db = require('../config/db'); 
+const db = require('../db'); 
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
