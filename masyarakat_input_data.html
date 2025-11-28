@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Input Data Anak - Posyandu Melati 1</title>
+    <title>Input Data Antropometri - Posyandu Melati 1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="assets/css/style.css" />
 
@@ -50,7 +50,7 @@
           </div>
           <div>
             <h1 class="text-xl md:text-2xl font-bold text-green-800">
-              Input Data Antropometri
+              Dashboard Masyarakat
             </h1>
             <p class="text-sm text-green-600 hidden md:block">
               Posyandu Melati 1
@@ -58,15 +58,14 @@
           </div>
         </div>
 
-        <!-- Navigation Actions -->
+        <!-- User Profile and Logout -->
         <div class="flex items-center gap-4">
-          <button
-            onclick="goBack()"
-            class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 md:px-6 md:py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-          >
-            <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg">
+            <div
+              class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center"
+            >
               <svg
-                class="w-4 h-4"
+                class="w-4 h-4 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -75,12 +74,14 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M15 19l-7-7 7-7"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                 ></path>
               </svg>
-              <span class="hidden md:block">Kembali</span>
             </div>
-          </button>
+            <span class="text-green-800 font-medium hidden md:block"
+              >Masyarakat</span
+            >
+          </div>
           <button
             onclick="logout()"
             class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 md:px-6 md:py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
@@ -147,7 +148,7 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
                 ></path>
               </svg>
               Input Data Antropometri
@@ -166,7 +167,7 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 ></path>
               </svg>
               Riwayat Antropometri
@@ -175,49 +176,29 @@
         </div>
       </aside>
 
-      <!-- Mobile Menu Button -->
-      <button
-        id="mobile-menu-btn"
-        class="lg:hidden fixed top-20 left-4 z-40 bg-green-600 text-white p-2 rounded-lg shadow-lg"
-      >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          ></path>
-        </svg>
-      </button>
-
       <!-- Main Content -->
       <main class="flex-1 p-4 lg:p-8">
-        <!-- Title Section -->
+        <!-- Page Header -->
         <div class="mb-8 fade-in">
           <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-2">
-            Input Data Anak Anda
+            Input Data Antropometri
           </h2>
           <p class="text-green-600 text-lg">
-            Masukkan data antropometri anak untuk memantau pertumbuhan
+            Masukkan data pengukuran antropometri balita
           </p>
         </div>
 
-        <!-- Form Section -->
-        <div class="max-w-2xl mx-auto">
+        <div class="grid lg:grid-cols-2 gap-8">
+          <!-- Form Input -->
           <div
-            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-8 shadow-lg fade-in"
+            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
           >
             <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center"
+                class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center"
               >
                 <svg
-                  class="w-6 h-6 text-white"
+                  class="w-4 h-4 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -226,62 +207,61 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   ></path>
                 </svg>
               </div>
-              <h3 class="text-2xl font-bold text-green-800">Form Data Anak</h3>
+              <h3 class="text-xl font-bold text-green-800">
+                Form Data Antropometri
+              </h3>
             </div>
 
             <form id="dataForm" class="space-y-6">
               <!-- Nama Anak -->
-              <div class="space-y-2">
+              <div>
                 <label
                   for="namaAnak"
-                  class="block text-sm font-semibold text-green-800"
+                  class="block text-sm font-medium text-green-700 mb-2"
+                  >Nama Anak</label
                 >
-                  Nama Anak
-                </label>
                 <input
                   type="text"
                   id="namaAnak"
-                  placeholder="Masukkan nama anak"
+                  placeholder="Masukkan nama lengkap anak"
                   required
-                  class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                  class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white"
                 />
               </div>
 
               <!-- Umur -->
-              <div class="space-y-2">
+              <div>
                 <label
                   for="umur"
-                  class="block text-sm font-semibold text-green-800"
+                  class="block text-sm font-medium text-green-700 mb-2"
+                  >Umur (bulan)</label
                 >
-                  Umur (bulan)
-                </label>
                 <input
                   type="number"
                   id="umur"
-                  placeholder="Masukkan umur dalam bulan"
-                  required
+                  placeholder="Contoh: 24"
                   min="0"
                   max="60"
-                  class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                  required
+                  class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white"
                 />
               </div>
 
               <!-- Jenis Kelamin -->
-              <div class="space-y-2">
+              <div>
                 <label
                   for="jenisKelamin"
-                  class="block text-sm font-semibold text-green-800"
+                  class="block text-sm font-medium text-green-700 mb-2"
+                  >Jenis Kelamin</label
                 >
-                  Jenis Kelamin
-                </label>
                 <select
                   id="jenisKelamin"
                   required
-                  class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800"
+                  class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white"
                 >
                   <option value="">-- Pilih Jenis Kelamin --</option>
                   <option value="laki-laki">Laki-laki</option>
@@ -289,106 +269,89 @@
                 </select>
               </div>
 
-              <!-- Grid for measurements -->
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Berat Badan -->
-                <div class="space-y-2">
-                  <label
-                    for="beratBadan"
-                    class="block text-sm font-semibold text-green-800"
-                  >
-                    Berat Badan (kg)
-                  </label>
+              <!-- Berat Badan -->
+              <div>
+                <label
+                  for="beratBadan"
+                  class="block text-sm font-medium text-green-700 mb-2"
+                  >Berat Badan (kg)</label
+                >
+                <div class="relative">
                   <input
                     type="number"
                     step="0.1"
                     id="beratBadan"
-                    placeholder="12.5"
+                    placeholder="Contoh: 12.5"
+                    min="0"
                     required
-                    min="1"
-                    max="50"
-                    class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                    class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white"
                   />
-                </div>
-
-                <!-- Tinggi Badan -->
-                <div class="space-y-2">
-                  <label
-                    for="tinggiBadan"
-                    class="block text-sm font-semibold text-green-800"
+                  <div
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
                   >
-                    Tinggi Badan (cm)
-                  </label>
+                    <span class="text-green-500 sm:text-sm">kg</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tinggi Badan -->
+              <div>
+                <label
+                  for="tinggiBadan"
+                  class="block text-sm font-medium text-green-700 mb-2"
+                  >Tinggi Badan (cm)</label
+                >
+                <div class="relative">
                   <input
                     type="number"
                     step="0.1"
                     id="tinggiBadan"
-                    placeholder="85.0"
+                    placeholder="Contoh: 85.0"
+                    min="0"
                     required
-                    min="40"
-                    max="150"
-                    class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                    class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white"
                   />
-                </div>
-
-                <!-- Lingkar Kepala -->
-                <div class="space-y-2">
-                  <label
-                    for="lingkarKepala"
-                    class="block text-sm font-semibold text-green-800"
+                  <div
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
                   >
-                    Lingkar Kepala (cm)
-                  </label>
+                    <span class="text-green-500 sm:text-sm">cm</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lingkar Kepala -->
+              <div>
+                <label
+                  for="lingkarKepala"
+                  class="block text-sm font-medium text-green-700 mb-2"
+                  >Lingkar Kepala (cm)</label
+                >
+                <div class="relative">
                   <input
                     type="number"
                     step="0.1"
                     id="lingkarKepala"
-                    placeholder="48.5"
+                    placeholder="Contoh: 48.5"
+                    min="0"
                     required
-                    min="30"
-                    max="60"
-                    class="w-full px-4 py-3 bg-white border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-green-800 placeholder-green-400"
+                    class="block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white"
                   />
+                  <div
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
+                  >
+                    <span class="text-green-500 sm:text-sm">cm</span>
+                  </div>
                 </div>
               </div>
 
               <!-- Submit Button -->
-              <div class="pt-4">
-                <button
-                  type="submit"
-                  id="submitBtn"
-                  class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-3"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    ></path>
-                  </svg>
-                  Hitung & Lihat Hasil Analisis
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Results Section -->
-          <div
-            id="hasilAnalisis"
-            class="mt-8 card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-8 shadow-lg fade-in hidden"
-          >
-            <div class="flex items-center gap-3 mb-6">
-              <div
-                class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center"
+              <button
+                type="submit"
+                id="submitBtn"
+                class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
               >
                 <svg
-                  class="w-6 h-6 text-white"
+                  class="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -397,35 +360,123 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                Hitung & Lihat Hasil
+              </button>
+            </form>
+          </div>
+
+          <!-- Hasil Analisis -->
+          <div
+            class="card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+          >
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   ></path>
                 </svg>
               </div>
-              <h3 class="text-2xl font-bold text-green-800">
-                Hasil Analisis Antropometri
-              </h3>
+              <h3 class="text-xl font-bold text-green-800">Hasil Analisis</h3>
             </div>
 
-            <div id="hasilContent" class="space-y-4">
+            <div id="hasilAnalisis" class="space-y-4">
               <div
-                class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6"
+                class="bg-green-50 border border-green-200 rounded-lg p-4 text-center"
               >
-                <h4 class="font-semibold text-green-800 mb-2">Status Gizi</h4>
-                <p class="text-green-700">
-                  Hasil analisis akan muncul di sini setelah Anda mengisi form
-                  dan menekan tombol analisis.
+                <svg
+                  class="w-12 h-12 mx-auto text-green-400 mb-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  ></path>
+                </svg>
+                <p class="text-green-700 font-medium">
+                  Silakan isi form di sebelah kiri
+                </p>
+                <p class="text-green-600 text-sm mt-1">
+                  Hasil analisis antropometri akan muncul di sini setelah form
+                  disubmit
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <div
-                class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6"
+        <!-- Tips Section -->
+        <div
+          class="mt-8 card-hover bg-white/80 backdrop-blur-sm border border-green-100 rounded-2xl p-6 shadow-lg fade-in"
+        >
+          <div class="flex items-center gap-3 mb-6">
+            <div
+              class="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <h4 class="font-semibold text-blue-800 mb-2">Rekomendasi</h4>
-                <p class="text-blue-700">
-                  Saran dan rekomendasi akan ditampilkan berdasarkan hasil
-                  analisis data antropometri anak Anda.
-                </p>
-              </div>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-green-800">
+              Tips Pengukuran Antropometri
+            </h3>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-6">
+            <div
+              class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4"
+            >
+              <h4 class="font-semibold text-blue-800 mb-2">📏 Tinggi Badan</h4>
+              <p class="text-blue-700 text-sm">
+                Ukur dalam posisi berdiri tegak, tanpa alas kaki, pandangan
+                lurus ke depan
+              </p>
+            </div>
+            <div
+              class="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4"
+            >
+              <h4 class="font-semibold text-green-800 mb-2">⚖️ Berat Badan</h4>
+              <p class="text-green-700 text-sm">
+                Timbang dengan pakaian minimal, setelah buang air kecil, di pagi
+                hari
+              </p>
+            </div>
+            <div
+              class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4"
+            >
+              <h4 class="font-semibold text-purple-800 mb-2">
+                🔄 Lingkar Kepala
+              </h4>
+              <p class="text-purple-700 text-sm">
+                Ukur bagian terlebar kepala menggunakan pita ukur yang tepat
+              </p>
             </div>
           </div>
         </div>
@@ -440,6 +491,6 @@
     </footer>
 
     <script src="/assets/js/main.js"></script>
-    <script src="/assets/js/masyarakat-input-data.js"></script>
+    <script src="/assets/js/admin-input-data.js"></script>
   </body>
 </html>

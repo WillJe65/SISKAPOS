@@ -1,476 +1,328 @@
 // === KONFIGURASI UTAMA ===
 const API_CONFIG = {
-  BASE_URL: '', // Biarkan kosong agar otomatis mengikuti domain/IP
+  BASE_URL: '', // Biarkan kosong untuk Relative URL
   ENDPOINTS: {
     ACCOUNTS: '/api/accounts',
-    JADWAL: '/api/jadwal'
+    RECOMMENDATION: '/api/generate-recommendation',
+    ANTROPOMETRI: '/api/antropometri'
   }
 };
 
+let currentFormData = null;
+let selectedAccountId = null;
+
 // Fungsi navigasi
 function goBack() {
-  window.location.href = "/masyarakat-dashboard";
+  window.location.href = "/admin-dashboard";
 }
 
 function logout() {
-  if (confirm('Apakah Anda yakin ingin logout?')) {
+  if (confirm("Apakah Anda yakin ingin logout?")) {
     localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('user');
-    
-    window.location.href = "/login"; 
+    window.location.href = "/";
   }
 }
 
-/**
- * Mengubah string waktu "HH:MM:SS" menjadi "HH:MM"
- * @param {string} timeString - Cth: "09:30:00"
- * @returns {string} Cth: "09:30"
- */
-function formatTime(timeString) {
-  if (!timeString || typeof timeString !== 'string') return '';
-  const parts = timeString.split(':');
-  if (parts.length < 2) return timeString;
-  return `${parts[0]}:${parts[1]}`;
-}
-
-/**
- * Mengubah string tanggal menjadi format "15 Sep 2025"
- * (Versi ini diubah agar tidak menampilkan jam)
- */
-function formatDate(dateString) {
-  if (!dateString) return "-";
-  
-  try {
-    const date = new Date(dateString); 
-
-    const options = {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      timeZone: 'Asia/Jakarta'
-    };
-    
-    return new Intl.DateTimeFormat('id-ID', options).format(date);
-  
-  } catch (e) {
-    console.error("Gagal memformat tanggal:", e, dateString);
-    return dateString.split('T')[0]; 
-  }
-}
-
-/**
- * Mengisi data jadwal ke kartu "Jadwal Berikutnya" dan tabel "Jadwal Posyandu"
- */
-function populateJadwal(schedules) {
-  if (!Array.isArray(schedules)) {
-    schedules = [];
-  }
-
-  const confirmedSchedules = schedules.filter(s => s.status === 'Terkonfirmasi');
-
-  // Logika untuk "Jadwal Berikutnya"
-  const nextScheduleCard = document.getElementById("next-schedule-card-content");
-  if (nextScheduleCard) {
-    
-    const now = new Date(); 
-
-    const futureSchedules = confirmedSchedules
-      .filter(s => {
-        if (!s.tanggal) return false; 
-        const scheduleDate = new Date(s.tanggal); 
-        return !isNaN(scheduleDate) && scheduleDate >= now; 
-      })
-      .sort((a, b) => {
-        const timeA = new Date(a.tanggal).getTime();
-        const timeB = new Date(b.tanggal).getTime();
-        if (isNaN(timeA)) return 1;
-        if (isNaN(timeB)) return -1;
-        return timeA - timeB; 
-      });
-
-    if (futureSchedules.length > 0) {
-      const nextSchedule = futureSchedules[0]; 
-      
-      const scheduleDateStr = formatDate(nextSchedule.tanggal);
-      const startTimeStr = formatTime(nextSchedule.waktu_mulai);
-      const endTimeStr = formatTime(nextSchedule.waktu_selesai);
-      
-      nextScheduleCard.innerHTML = `
-        <p class="text-green-800 font-semibold">${scheduleDateStr}, ${startTimeStr} - ${endTimeStr} WIB</p>
-        <p class="text-green-600" id="next-schedule-location">${nextSchedule.lokasi || '-'}</p>
-        <p class="text-sm text-green-500" id="next-schedule-service">${nextSchedule.layanan || 'Layanan Posyandu'}</p>
-      `;
-      
-    } else {
-      nextScheduleCard.innerHTML = `
-        <p class="text-green-700 text-center">Belum ada jadwal berikutnya yang terkonfirmasi.</p>
-      `;
-    }
-  }
-
-  // Logika untuk Tabel "Jadwal Posyandu"
-  const tableBody = document.getElementById("jadwal-table-body");
-  if (tableBody) {
-    tableBody.innerHTML = ""; 
-
-    if (confirmedSchedules.length === 0) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="3" class="px-6 py-4 text-center text-sm text-green-600">
-            Belum ada jadwal terkonfirmasi.
-          </td>
-        </tr>
-      `;
-    } else {
-      const sortedForTable = [...confirmedSchedules].sort((a, b) => {
-        const timeA = new Date(a.tanggal).getTime() || 0;
-        const timeB = new Date(b.tanggal).getTime() || 0;
-        return timeB - timeA;
-      });
-
-      sortedForTable.forEach(s => {
-        if (!s.tanggal) return; 
-
-        const scheduleDateStr = formatDate(s.tanggal);
-        const startTimeStr = formatTime(s.waktu_mulai);
-        const endTimeStr = formatTime(s.waktu_selesai);
-
-        const row = `
-          <tr class="hover:bg-green-50 transition-colors">
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-800">
-              ${scheduleDateStr}, ${startTimeStr} - ${endTimeStr} WIB
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">
-              ${s.lokasi || '-'}
-            </td>
-            <td class="px-6 py-4 text-sm text-green-600">
-              ${s.layanan || '-'}
-            </td>
-          </tr>
-        `;
-        tableBody.innerHTML += row;
-      });
-    }
-  }
-}
-
-// Mobile menu toggle
-document.addEventListener("DOMContentLoaded", function () {
-  const mobileMenuBtn =
-    document.getElementById("mobile-menu-btn") ||
-    document.querySelector("[data-mobile-menu-btn]");
-  const sidebar =
-    document.getElementById("mobile-sidebar") ||
-    document.querySelector("aside");
-  if (!mobileMenuBtn) {
-    console.warn("[MobileMenu] Tombol mobile menu tidak ditemukan.");
+// Memuat daftar akun (anak) ke dalam dropdown
+async function loadAccountsIntoDropdown() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login';
     return;
   }
-  if (!sidebar) {
-    console.warn("[MobileMenu] Sidebar tidak ditemukan.");
-    return;
-  }
+
   try {
-    const controls = mobileMenuBtn.getAttribute("aria-controls");
-    if (!controls) {
-      mobileMenuBtn.setAttribute(
-        "aria-controls",
-        sidebar.id || "mobile-sidebar"
-      );
-    }
-  } catch (err) {}
-  function isMobileView() {
-    return window.innerWidth < 768;
-  }
-  function openMenu() {
-    if (!isMobileView()) return;
-    sidebar.classList.remove("hidden", "-translate-x-full");
-    sidebar.classList.add("transform", "translate-x-0", "fixed", "top-0", "left-0", "h-full", "z-30");
-    document.documentElement.classList.add("overflow-hidden");
-    mobileMenuBtn.setAttribute("aria-expanded", "true");
-  }
-  function closeMenu() {
-    if (!isMobileView()) return;
-    sidebar.classList.add("hidden", "-translate-x-full");
-    sidebar.classList.remove("translate-x-0", "fixed", "top-0", "left-0", "h-full", "z-30");
-    document.documentElement.classList.remove("overflow-hidden");
-    mobileMenuBtn.setAttribute("aria-expanded", "false");
-  }
-  function resetSidebarState() {
-    if (isMobileView()) {
-      sidebar.classList.add("hidden", "-translate-x-full", "transform");
-      sidebar.classList.remove("translate-x-0", "fixed", "top-0", "left-0", "h-full", "z-30");
-      document.documentElement.classList.remove("overflow-hidden");
-      mobileMenuBtn.setAttribute("aria-expanded", "false");
-    } else {
-      sidebar.classList.remove("hidden", "-translate-x-full", "translate-x-0", "transform", "fixed", "top-0", "left-0", "h-full", "z-30");
-      document.documentElement.classList.remove("overflow-hidden");
-      mobileMenuBtn.setAttribute("aria-expanded", "false");
-    }
-  }
-  if (!sidebar.id) {
-    sidebar.id = "mobile-sidebar";
-    mobileMenuBtn.setAttribute("aria-controls", sidebar.id);
-  }
-  resetSidebarState();
-  let resizeTimer;
-  window.addEventListener("resize", function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      resetSidebarState();
-    }, 250);
-  });
-  mobileMenuBtn.addEventListener("click", function (e) {
-    e.stopPropagation();
-    if (!isMobileView()) return;
-    const isHidden =
-      sidebar.classList.contains("hidden") ||
-      sidebar.classList.contains("-translate-x-full");
-    if (isHidden) {
-      openMenu();
-    } else {
-      closeMenu();
-    }
-  });
-  document.addEventListener("click", function (e) {
-    if (!isMobileView()) return;
-    if (!sidebar.classList.contains("hidden")) {
-      if (!sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-        closeMenu();
-      }
-    }
-  });
-  document.addEventListener("keydown", function (e) {
-    if (!isMobileView()) return;
-    if (e.key === "Escape" || e.key === "Esc") {
-      if (!sidebar.classList.contains("hidden")) {
-        closeMenu();
-      }
-    }
-  });
-  const sidebarLinks = sidebar.querySelectorAll("a");
-  sidebarLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      if (isMobileView()) {
-        closeMenu();
+    // UPDATE: Menggunakan Config Dinamis
+    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}?limit=1000`;
+    
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!response.ok) throw new Error('Gagal memuat data akun');
+    
+    const { data } = await response.json();
+    
+    const namaAnakInput = document.getElementById('namaAnak');
+    
+    const selectEl = document.createElement('select');
+    selectEl.id = 'namaAnakSelect';
+    selectEl.required = true;
+    selectEl.className = 'block w-full px-4 py-3 border border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500 bg-white';
+    
+    selectEl.innerHTML = '<option value="">-- Pilih Anak --</option>';
+    
+    data.forEach(akun => {
+      const option = document.createElement('option');
+      option.value = akun.id;
+      option.textContent = `${akun.nama_lengkap} (Username: ${akun.username})`;
+      option.dataset.umur = akun.umur_bulan;
+      option.dataset.kelamin = akun.jenis_kelamin;
+      selectEl.appendChild(option);
+    });
+
+    namaAnakInput.parentNode.replaceChild(selectEl, namaAnakInput);
+
+    selectEl.addEventListener('change', (e) => {
+      selectedAccountId = e.target.value;
+      const selectedOption = e.target.options[e.target.selectedIndex];
+      
+      if (selectedOption.value) {
+        document.getElementById('umur').value = selectedOption.dataset.umur || '';
+        document.getElementById('jenisKelamin').value = selectedOption.dataset.kelamin ? selectedOption.dataset.kelamin.toLowerCase() : '';
+        document.getElementById('jenisKelamin').disabled = true;
+      } else {
+        document.getElementById('umur').value = '';
+        document.getElementById('jenisKelamin').value = '';
+        document.getElementById('jenisKelamin').disabled = false;
       }
     });
-  });
+
+  } catch (err) {
+    console.error(err);
+    alert('Gagal memuat daftar anak. Halaman akan dimuat ulang.');
+    location.reload();
+  }
+}
+
+// Event listener untuk submit form data
+document.getElementById("dataForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const submitBtn = document.getElementById("submitBtn");
+  const originalBtnText = submitBtn.innerHTML;
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = `
+    <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    Menganalisis...
+  `;
+
+  const selectEl = document.getElementById('namaAnakSelect');
+  if (!selectEl || !selectEl.value) {
+     alert('Silakan pilih anak terlebih dahulu.');
+     submitBtn.disabled = false;
+     submitBtn.innerHTML = originalBtnText;
+     return;
+  }
+  
+  const selectedOption = selectEl.options[selectEl.selectedIndex];
+  const nama = selectedOption.text.split(' (')[0];
+  
+  const umur = parseInt(document.getElementById("umur").value);
+  const jenisKelamin = document.getElementById("jenisKelamin").value;
+  const beratBadan = parseFloat(document.getElementById("beratBadan").value);
+  const tinggiBadan = parseFloat(document.getElementById("tinggiBadan").value);
+  const lingkarKepala = parseFloat(document.getElementById("lingkarKepala").value);
+  
+  if (isNaN(umur) || isNaN(beratBadan) || isNaN(tinggiBadan)) {
+     alert('Umur, Berat Badan, dan Tinggi Badan wajib diisi angka.');
+     submitBtn.disabled = false;
+     submitBtn.innerHTML = originalBtnText;
+     return;
+  }
+
+  const bmi = beratBadan / Math.pow(tinggiBadan / 100, 2);
+  let statusGizi, statusClass;
+
+  // Placeholder sederhana untuk status gizi
+  if (bmi < 17.0) {
+    statusGizi = "Gizi Kurang";
+    statusClass = "bg-yellow-100 text-yellow-800";
+  } else if (bmi >= 17.0 && bmi <= 23.0) {
+    statusGizi = "Normal";
+    statusClass = "bg-green-100 text-green-800";
+  } else if (bmi > 23.0 && bmi <= 27.0) {
+    statusGizi = "Gizi Lebih";
+    statusClass = "bg-orange-100 text-orange-800";
+  } else {
+    statusGizi = "Obesitas";
+    statusClass = "bg-red-100 text-red-800";
+  }
+
+  let rekomendasiAI = "";
+
+  try {
+    // UPDATE: Menggunakan Config Dinamis
+    const urlRecommendation = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.RECOMMENDATION}`;
+
+    const apiResponse = await fetch(urlRecommendation, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        namaAnak: nama,
+        umur,
+        jenisKelamin,
+        beratBadan,
+        tinggiBadan,
+        bmi,
+        statusGizi,
+      }),
+    });
+
+    if (!apiResponse.ok) {
+      throw new Error(`Network response was not ok: ${apiResponse.statusText}`);
+    }
+
+    const data = await apiResponse.json();
+    rekomendasiAI = data.recommendation;
+
+  } catch (error) {
+    console.error("Failed to fetch AI recommendation:", error);
+    rekomendasiAI = "Gagal memuat rekomendasi dari AI. Mohon berikan saran gizi seimbang.";
+  }
+
+  // Simpan data sementara di state global
+  currentFormData = {
+    account_id: selectedAccountId,
+    umur,
+    beratBadan,
+    tinggiBadan,
+    lingkarKepala: !isNaN(lingkarKepala) ? lingkarKepala : null,
+    bmi: bmi.toFixed(1),
+    statusGizi,
+    rekomendasiAI
+  };
+
+  const dataHasil = {
+    bmi: bmi.toFixed(1),
+    statusGizi: statusGizi,
+    statusClass: statusClass,
+    rekomendasiAI: rekomendasiAI,
+  };
+
+  tampilkanHasil(nama, dataHasil);
+
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = originalBtnText;
 });
 
-// Intersection Observer for fade-in animations
-document.addEventListener("DOMContentLoaded", function () {
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: "0px 0px -50px 0px",
-  };
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-      }
+// Fungsi untuk menampilkan hasil analisis di UI
+function tampilkanHasil(nama, hasil) {
+  const hasilDiv = document.getElementById("hasilAnalisis");
+
+  hasilDiv.innerHTML = `
+    <div class="space-y-4">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+            <h4 class="font-semibold text-green-800 text-lg">Hasil Analisis untuk: ${nama}</h4>
+        </div>
+        <div class="border border-gray-200 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-gray-700 font-medium">Status Gizi:</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${hasil.statusClass}">
+                    ${hasil.statusGizi}
+                </span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-gray-700 font-medium">BMI:</span>
+                <span class="text-gray-900 font-semibold">${hasil.bmi}</span>
+            </div>
+        </div>
+        <div class="border border-gray-200 rounded-lg p-4">
+            <h5 class="font-semibold text-gray-800 mb-3">💡 Rekomendasi AI:</h5>
+            <p class="text-gray-700 text-sm whitespace-pre-line">${hasil.rekomendasiAI}</p>
+        </div>
+        <div class="flex gap-2 pt-2">
+            <button onclick="simpanData()" id="saveBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                Simpan Data
+            </button>
+            <button onclick="resetForm()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                Input Data Baru
+            </button>
+        </div>
+    </div>
+  `;
+}
+
+// Fungsi untuk menyimpan data ke database
+async function simpanData() {
+  if (!currentFormData) {
+    alert("Tidak ada data untuk disimpan.");
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login';
+    return;
+  }
+  
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.innerText = 'Menyimpan...';
+
+  try {
+    // UPDATE: Menggunakan Config Dinamis
+    const urlAntropometri = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ANTROPOMETRI}`;
+
+    const response = await fetch(urlAntropometri, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(currentFormData),
     });
-  }, observerOptions);
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Gagal menyimpan data.');
+    }
+
+    alert(result.message || "Data berhasil disimpan!");
+    resetForm();
+
+  } catch (err) {
+    console.error("Gagal menyimpan data:", err);
+    alert("Gagal menyimpan data: " + err.message);
+    saveBtn.disabled = false;
+    saveBtn.innerText = 'Simpan Data';
+  }
+}
+
+// Fungsi untuk mereset form dan hasil analisis
+function resetForm() {
+  document.getElementById("dataForm").reset();
+  
+  document.getElementById('jenisKelamin').disabled = false;
+  
+  const selectEl = document.getElementById('namaAnakSelect');
+  if (selectEl) {
+    selectEl.selectedIndex = 0;
+  }
+  
+  currentFormData = null;
+  selectedAccountId = null;
+  
+  document.getElementById("hasilAnalisis").innerHTML = `
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+        <svg class="w-12 h-12 mx-auto text-green-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p class="text-green-700 font-medium">Silakan isi form di sebelah kiri</p>
+    </div>
+  `;
+}
+
+// Intersection Observer untuk animasi fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+    }
+  });
+}, { threshold: 0.1 });
+
+// Event listener saat dokumen selesai dimuat
+document.addEventListener("DOMContentLoaded", function () {
+  loadAccountsIntoDropdown();
   
   const fadeElements = document.querySelectorAll(".fade-in");
   fadeElements.forEach((el) => {
     observer.observe(el);
   });
-});
-
-
-/* --------------------------
-   LOAD DATA DINAMIS & CHARTS
-   -------------------------- */
-document.addEventListener("DOMContentLoaded", async function () {
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
-
-  if (!token || !userId) {
-    alert("Sesi Anda telah berakhir. Silakan login kembali.");
-    window.location.href = "/login"; 
-    return; 
-  }
-
-  // Fetch Riwayat Anak
-  try {
-    // UPDATE: Menggunakan Config Dinamis
-    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.ACCOUNTS}/${userId}/history`;
-
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) throw new Error("Gagal mengambil data riwayat.");
-
-    const data = await res.json();
-
-    if (data.length === 0) {
-      document.querySelector(".bg-blue-50 .text-blue-800").textContent = "N/A";
-      document.querySelector(".bg-blue-50 .text-blue-600").textContent = "Berat: N/A";
-      document.querySelector(".bg-blue-50 .text-sm").textContent = "Tinggi: N/A";
-      document.querySelector(".bg-purple-50 .text-2xl").textContent = "N/A";
-      document.querySelector(".bg-purple-50 .text-lg").textContent = "N/A";
-      document.querySelector(".bg-green-50 .text-2xl").textContent = "N/A";
-      document.querySelector(".bg-green-50 .text-lg").textContent = "N/A";
-    } else {
-      const sortedData = data.sort((a, b) => new Date(b.tanggal_periksa) - new Date(a.tanggal_periksa));
-      const latest = sortedData[0]; 
-
-      document.querySelector(".bg-blue-50 .text-blue-800").textContent = latest.status_gizi || "N/A";
-      document.querySelector(".bg-blue-50 .text-blue-600").textContent = `Berat: ${latest.berat_badan_kg} kg`;
-      document.querySelector(".bg-blue-50 .text-sm").textContent = `Tinggi: ${latest.tinggi_badan_cm} cm`;
-
-      const heightStatusEl = document.querySelector(".bg-purple-50 .text-lg.font-semibold");
-      const weightStatusEl = document.querySelector(".bg-green-50 .text-lg.font-semibold");
-
-      document.querySelector(".bg-purple-50 .text-2xl").textContent = `${latest.tinggi_badan_cm} cm`;
-      document.querySelector(".bg-green-50 .text-2xl").textContent = `${latest.berat_badan_kg} kg`;
-
-      heightStatusEl.classList.remove("text-purple-700");
-      weightStatusEl.classList.remove("text-green-700");
-
-      if (sortedData.length > 1) {
-        const previous = sortedData[1];
-        
-        if (parseFloat(latest.berat_badan_kg) > parseFloat(previous.berat_badan_kg)) {
-          weightStatusEl.textContent = "Meningkat";
-          weightStatusEl.classList.add("text-green-700");
-        } else if (parseFloat(latest.berat_badan_kg) < parseFloat(previous.berat_badan_kg)) {
-          weightStatusEl.textContent = "Menurun";
-          weightStatusEl.classList.add("text-red-700");
-        } else {
-          weightStatusEl.textContent = "Tetap";
-          weightStatusEl.classList.add("text-gray-700");
-        }
-
-        if (parseFloat(latest.tinggi_badan_cm) > parseFloat(previous.tinggi_badan_cm)) {
-          heightStatusEl.textContent = "Meningtingkat";
-          heightStatusEl.classList.add("text-green-700");
-        } else if (parseFloat(latest.tinggi_badan_cm) < parseFloat(previous.tinggi_badan_cm)) {
-          heightStatusEl.textContent = "Menurun";
-          heightStatusEl.classList.add("text-red-700");
-        } else {
-          heightStatusEl.textContent = "Tetap";
-          heightStatusEl.classList.add("text-gray-700");
-        }
-      } else {
-        weightStatusEl.textContent = "Data Pertama";
-        weightStatusEl.classList.add("text-gray-700");
-        heightStatusEl.textContent = "Data Pertama";
-        heightStatusEl.classList.add("text-gray-700");
-      }
-
-      const chartData = [...sortedData].reverse();
-      const chartLabels = chartData.map((d) => formatDate(d.tanggal_periksa));
-      
-      const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: false },
-          x: { grid: { display: false } },
-        },
-      };
-
-      const weightCtx = document.getElementById("beratChart");
-      const heightCtx = document.getElementById("tinggiChart");
-
-      if (Chart.getChart(weightCtx)) Chart.getChart(weightCtx).destroy();
-      if (Chart.getChart(heightCtx)) Chart.getChart(heightCtx).destroy();
-
-      if (weightCtx) {
-        new Chart(weightCtx, {
-          type: "line",
-          data: {
-            labels: chartLabels,
-            datasets: [{
-              label: "Berat Badan (kg)",
-              data: chartData.map((d) => d.berat_badan_kg),
-              borderColor: "rgba(16, 185, 129, 1)",
-              backgroundColor: "rgba(16, 185, 129, 0.1)",
-              borderWidth: 3,
-              fill: true,
-              tension: 0.4,
-              pointBackgroundColor: "rgba(16, 185, 129, 1)",
-              pointBorderColor: "#ffffff",
-              pointBorderWidth: 2,
-              pointRadius: 6,
-            }],
-          },
-          options: {
-            ...chartOptions,
-            scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, grid: { color: "rgba(16, 185, 129, 0.1)" } } }
-          },
-        });
-      }
-
-      if (heightCtx) {
-        new Chart(heightCtx, {
-          type: "line",
-          data: {
-            labels: chartLabels,
-            datasets: [{
-              label: "Tinggi Badan (cm)",
-              data: chartData.map((d) => d.tinggi_badan_cm),
-              borderColor: "rgba(139, 92, 246, 1)",
-              backgroundColor: "rgba(139, 92, 246, 0.1)",
-              borderWidth: 3,
-              fill: true,
-              tension: 0.4,
-              pointBackgroundColor: "rgba(139, 92, 246, 1)",
-              pointBorderColor: "#ffffff",
-              pointBorderWidth: 2,
-              pointRadius: 6,
-            }],
-          },
-          options: {
-            ...chartOptions,
-            scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, grid: { color: "rgba(139, 92, 246, 0.1)" } } }
-          },
-        });
-      }
-    }
-    
-  } catch (err) {
-    console.error("Gagal memuat data dashboard (riwayat):", err);
-    document.querySelector(".bg-blue-50 .text-blue-800").textContent = "Error";
-    document.querySelector(".bg-blue-50 .text-blue-600").textContent = "Gagal";
-    document.querySelector(".bg-blue-50 .text-sm").textContent = "Muat Data";
-  }
-
-  // Fetch Jadwal
-  try {
-    // UPDATE: Menggunakan Config Dinamis
-    const scheduleUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.JADWAL}`;
-
-    const scheduleRes = await fetch(scheduleUrl, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!scheduleRes.ok) {
-        throw new Error("Gagal mengambil data jadwal.");
-    }
-    
-    const scheduleData = await scheduleRes.json();
-    
-    if (scheduleData.success && Array.isArray(scheduleData.data)) {
-        populateJadwal(scheduleData.data); 
-    } else {
-        throw new Error("Format data jadwal tidak valid.");
-    }
-    
-  } catch (err) {
-    console.error("Gagal memuat jadwal:", err);
-    const tableBody = document.getElementById("jadwal-table-body");
-    if (tableBody) {
-      tableBody.innerHTML = `<tr><td colspan="3" class="px-6 py-4 text-center text-sm text-red-600">Gagal memuat jadwal.</td></tr>`;
-    }
-    const nextScheduleCard = document.getElementById("next-schedule-card-content");
-    if (nextScheduleCard) {
-      nextScheduleCard.innerHTML = `<p class="text-red-700 text-center">Gagal memuat jadwal.</p>`;
-    }
-  }
 });
