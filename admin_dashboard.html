@@ -164,9 +164,9 @@
       </div>
     </header>
 
-    <div class="flex min-h-screen">
+    <div class="flex flex-col lg:flex-row min-h-screen">
       <aside
-        class="w-64 bg-white/80 backdrop-blur-sm border-r border-green-100 shadow-lg hidden lg:block"
+        class="w-full lg:w-64 bg-white/80 backdrop-blur-sm border-b lg:border-b-0 lg:border-r border-green-100 shadow-lg"
       >
         <div class="p-6">
           <nav class="space-y-2">
@@ -249,25 +249,6 @@
           </nav>
         </div>
       </aside>
-
-      <button
-        id="mobile-menu-btn"
-        class="lg:hidden fixed top-20 left-4 z-40 bg-green-600 text-white p-2 rounded-lg shadow-lg"
-      >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          ></path>
-        </svg>
-      </button>
 
       <main class="flex-1 p-4 lg:p-8">
         <div class="mb-8 fade-in">
